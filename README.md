@@ -5,10 +5,17 @@ Descripción:
 Tienda Ecommerce especializada en vender libros (libreria) --> con carrito de compra y base de datos propia de la que sacar el inventario
 
 Tecnologías utilizadas: 
+
 -Git/Github
+
 -Php
+
 -JS
+
 -html/css
+
 -MYSQL
+
 -Hostinger
+
  
