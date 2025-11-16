@@ -13,9 +13,9 @@
 
             <h3>Legal</h3>
             <ul>
-                <li><a href="">Política de Privacidad</a></li>
-                <li><a href="">Términos y Condiciones</a></li>
-                <li><a href="">Cookies</a></li>
+                <li><a href="privacidad.php">Política de Privacidad</a></li>
+                <li><a href="aviso_legal.php">Términos y Condiciones</a></li>
+                <li><a href="cookies.php">Cookies</a></li>
             </ul>
         </div>
 

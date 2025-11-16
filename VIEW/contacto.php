@@ -1,4 +1,7 @@
-<?php require_once 'header.php'; ?>
+<?php require_once 'header.php'; 
+//TODO: que el formulario se envia al correo electronico de la tienda
+?>
+
 
 <main>
 <h1>Contacto</h1>
