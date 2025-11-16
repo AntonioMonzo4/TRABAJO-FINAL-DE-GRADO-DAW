@@ -16,7 +16,7 @@
     <title>Los círculos de Atenea</title>
 </head>
 <body>
-    <!-- CABECERA -->
+    <!-- INICIO DE SESIÓN EN LA WEB -->
     <?php 
 
     //Inicio de sesión si no esta iniciado aún
@@ -32,4 +32,51 @@
     }
 
     //TODO: Añadir verificación de sesión y mostrar opciones de usuario si está logueado
+
     ?>
+    <!-- HEADER DE LA PÁGINA WEB--> 
+    <header class="header">
+        <div class="highHeader">
+            <div class="logoHeader">    
+                <a href="index.php"><img src="./VIEW/img/logo_principal.png"></a>
+            </div>
+            <!-- NAVBAR -->
+            <nav class="navbar">
+                <ul class="navbar-enlaces">
+                    <li><a href="">Inicio</a></li>
+                    <li><a href="">Tienda</a></li><!--TODO: Dropdown con categorías-->
+                    <li><a href="">Sobre Nosotros</a></li>
+                    <li><a href="">Contacto</a></li>
+                </ul>
+
+            </nav>
+
+            <div class="loginOptions">
+                <a href="" title="Iniciar Sesión">
+                    <i></i>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- TODO: Buscar íconos adecuados para los botones -->
+        <div class="lowHeader">
+            <div class="buscador">
+                <form action="" method="GET">
+                    <input type="text" placeholder="Escribe tu libro o producto..." name="buscador">
+                    <button type="submit"><i></i></button> 
+                </form>
+            </div>
+
+            <div class="carrito">
+                <a href="" title="Ver Carrito de la Compra">
+                    <i></i>
+                </a>
+            </div>
+        </div>
+
+
+
+
+
+    </header>
