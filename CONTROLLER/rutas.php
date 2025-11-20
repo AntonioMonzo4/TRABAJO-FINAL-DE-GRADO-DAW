@@ -1,12 +1,11 @@
-  <?php 
-$ruta = $_SERVER['REQUEST_URI'];
-$metodo = $_SERVER['REQUEST_METHOD'];
+<?php //ARCHIVO RUTAS PARA GESTIONAR LAS SOLICITUDES Y NAVEGACIÓN DE LA APLICACIÓN WEB
+
+$ruta = $_SERVER['REQUEST_URI']; // Obtener la ruta solicitada
+$metodo = $_SERVER['REQUEST_METHOD']; // Obtener el método HTTP utilizado
   
 if (isset($_GET["pagina"])) {
     switch ($_GET["pagina"]) {
         /* Panel Admin */
-        
-
         case "agregarProducto":
             if ($metodo === 'GET') {
                 require_once 'VISTA/agregarProducto.php';
@@ -131,8 +130,6 @@ if (isset($_GET["pagina"])) {
             }
             break;
 
-       
-
         /* Formularios */
         case "form_logado":
             if ($metodo === 'GET') {
@@ -145,6 +142,95 @@ if (isset($_GET["pagina"])) {
         case "form_registro":
             if ($metodo === 'GET') {
                 require_once 'VISTA/FormularioRegistro.php';
+            } else {
+                echo "Método no permitido para esta ruta.";
+            }
+            break;
+
+        /* ===== NUEVAS RUTAS AGREGADAS ===== */
+
+        /* Autenticación - Procesar formularios (POST) */
+        case "procesar_login":
+            if ($metodo === 'POST') {
+                require_once 'CONTROL/authController.php';
+                $authController = new AuthController();
+                $authController->login();
+            } else {
+                // Si no es POST, redirigir al formulario de login
+                header('Location: index.php?pagina=form_logado');
+                exit;
+            }
+            break;
+
+        case "procesar_registro":
+            if ($metodo === 'POST') {
+                require_once 'CONTROL/authController.php';
+                $authController = new AuthController();
+                $authController->register();
+            } else {
+                // Si no es POST, redirigir al formulario de registro
+                header('Location: index.php?pagina=form_registro');
+                exit;
+            }
+            break;
+
+        /* Productos */
+        case "catalogo":
+            if ($metodo === 'GET') {
+                require_once 'CONTROL/productController.php';
+                $productController = new ProductController();
+                $productController->catalogo();
+            } else {
+                echo "Método no permitido para esta ruta.";
+            }
+            break;
+
+        case "detalle_producto":
+            if ($metodo === 'GET') {
+                require_once 'CONTROL/productController.php';
+                $productController = new ProductController();
+                $productController->detalle();
+            } else {
+                echo "Método no permitido para esta ruta.";
+            }
+            break;
+
+        /* Carrito */
+        case "carrito":
+            if ($metodo === 'GET') {
+                require_once 'CONTROL/cartController.php';
+                $cartController = new CartController();
+                $cartController->verCarrito();
+            } else {
+                echo "Método no permitido para esta ruta.";
+            }
+            break;
+
+        case "agregar_carrito":
+            if ($metodo === 'POST') {
+                require_once 'CONTROL/cartController.php';
+                $cartController = new CartController();
+                $cartController->agregarAlCarrito();
+            } else {
+                echo "Método no permitido para esta ruta.";
+            }
+            break;
+
+        case "actualizar_carrito":
+            if ($metodo === 'POST') {
+                require_once 'CONTROL/cartController.php';
+                $cartController = new CartController();
+                $cartController->actualizarCarrito();
+            } else {
+                echo "Método no permitido para esta ruta.";
+            }
+            break;
+
+        case "vaciar_carrito":
+            if ($metodo === 'POST') {
+                require_once 'CONTROL/cartController.php';
+                $cartController = new CartController();
+                $cartController->vaciarCarrito();
             } else {
                 echo "Método no permitido para esta ruta.";
             }
@@ -184,11 +270,10 @@ if (isset($_GET["pagina"])) {
             break;
     }
 } else {
-  if ($metodo === 'GET') {
-        require_once './VIEW/home.php';
+    if ($metodo === 'GET') {
+        require_once 'VISTA/Home.php';
     } else {
         echo "Método no permitido.";
     }
 }
-
 ?>
