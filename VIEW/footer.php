@@ -5,10 +5,10 @@
         <div class="centerFooter">
             <h3>Secciones</h3>
             <ul>
-                <li><a href="">Inicio</a></li>
-                <li><a href="">Tienda</a></li>
-                <li><a href="">Sobre Nosotros</a></li>
-                <li><a href="">Contacto</a></li>
+                <li><a href="index.php?pagina=inicio">Inicio</a></li>
+                <li><a href="index.php?pagina=categoriaTienda">Tienda</a></li>
+                <li><a href="index.php?pagina=sobreNosotros">Sobre Nosotros</a></li>
+                <li><a href="index.php?pagina=contacto">Contacto</a></li>
             </ul>
 
             <h3>Legal</h3>
