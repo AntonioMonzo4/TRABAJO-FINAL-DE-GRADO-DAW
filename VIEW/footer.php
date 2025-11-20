@@ -20,15 +20,23 @@
         </div>
 
         <div class="rightFooter">
-            <h3>Contacto</h3>
-            <p>Dirección: Calle Falsa 123, Ciudad, País</p>
-            <p>Teléfono: +34 123 456 789</p>
-            <p>Email: contacto@ejemplo.com</p>
+            <div class="footer-section">
+                <h3>Contacto</h3>
+                <div class="contact-info">
+                    <p><i class="fas fa-map-marker-alt"></i> Calle Falsa 123, Ciudad, País</p>
+                    <p><i class="fas fa-phone"></i> +34 123 456 789</p>
+                    <p><i class="fas fa-envelope"></i> contacto@ejemplo.com</p>
+                </div>
 
-            <div class="socialMedia">
-                <a href="" title="Facebook"><i></i></a>
-                <a href="" title="Twitter"><i></i></a>
-                <a href="" title="Instagram"><i></i></a>
+                <div class="social-media">
+                    <h4>Síguenos en redes sociales</h4>
+                    <div class="social-icons">
+                        <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
