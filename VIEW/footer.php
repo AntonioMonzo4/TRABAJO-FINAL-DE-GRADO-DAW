@@ -1,6 +1,6 @@
 <footer class="footer">
     <div class="upFooter">
-        <img src="./VIEW/img/logo_principal.png" alt="logo_footer">
+        <img src="/VIEW/img/logo_principal.png" alt="logo_footer">
 
         <div class="centerFooter">
             <h3>Secciones</h3>

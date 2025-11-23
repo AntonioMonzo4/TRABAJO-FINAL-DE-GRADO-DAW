@@ -12,11 +12,8 @@ class Producto {
         $this->conexion = Conexion::conexionBBDD();
     }
 
-    //Método para obtener todos los productos
-    public function obtenerProductos(){
-        $sql = "SELECT * FROM {$this->tabla}";
-        $stmt = $this->conexion->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+   
+    public function obtenerTodos($tipo=null){
+        
     }
 }

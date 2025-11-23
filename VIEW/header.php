@@ -11,12 +11,13 @@
     <meta name="author" content="Antonio Monzó">
     <meta name="keywords" content="libro, libros, autor, libreria, lectura, ebook, marcapáginas, bolsas, portalibros, saga, cuentos, Atenea, conocimiento, comics, biografías, poesia"> 
     <meta name="robots" content="index,follow">
-    <link rel="shortcut icon" href="./VIEW/img/logo_principal.png" type="image/svg+xml">
+    <link rel="shortcut icon" href="/VIEW/img/logo_principal.png" type="image/svg+xml">
 
     <!-- Añadido CDN de FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="./VIEW/css/style.css">
+    <link rel="stylesheet" href="/VIEW/css/style.css">
     <title>Los círculos de Atenea</title>
+
 </head>
 
 <body>
@@ -42,7 +43,7 @@
     <header class="header">
         <div class="highHeader">
             <div class="logoHeader">    
-                <a href="index.php"><img src="./VIEW/img/logo_principal.png" alt="Los círculos de Atenea"></a>
+                <a href="index.php"><img src="/VIEW/img/logo_principal.png" alt="Los círculos de Atenea"></a>
             </div>
             <!-- NAVBAR -->
             <nav class="navbar">
