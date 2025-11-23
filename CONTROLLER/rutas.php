@@ -271,7 +271,7 @@ if (isset($_GET["pagina"])) {
     }
 } else {
     if ($metodo === 'GET') {
-        require_once 'VISTA/Home.php';
+        require_once 'VIEW/home.php';
     } else {
         echo "Método no permitido.";
     }
