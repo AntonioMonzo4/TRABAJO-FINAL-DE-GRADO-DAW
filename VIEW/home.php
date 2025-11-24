@@ -1,23 +1,30 @@
-<?php
+<?php 
+// Incluir header desde la misma carpeta VIEW
 require_once 'header.php';
-require_once '../MODEL/conexion.php';
 
+// Incluir conexión a la base de datos
+require_once '../controller/conexion.php';
+
+// Obtener libros destacados de la base de datos
 $libros_destacados = [];
-
 try {
+    // Seleccionamos 8 libros al azar como destacados
     $stmt = $pdo->query("SELECT * FROM books ORDER BY RAND() LIMIT 8");
-    $libros_destacados = $stmt->fetchAll(PDO::FETCH_ASSOC); // Obtener todos los libros como un arreglo asociativo FETCH_ASSOC
+    $libros_destacados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    // Manejar el error, por ejemplo, registrarlo o mostrar un mensaje amigable
+    // En caso de error, usar array vacío
     $libros_destacados = [];
     error_log("Error al obtener libros destacados: " . $e->getMessage());
 }
 
+// Obtener categorías para la sección de explorar
 $categorias = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT genero_literario FROM books WHERE genero_lioterario IS NOT NULL LIMIT 6");
+    $stmt = $pdo->query("SELECT DISTINCT genero_literario FROM books WHERE genero_literario IS NOT NULL LIMIT 6");
     $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
+    error_log("Error al obtener categorías: " . $e->getMessage());
+    // Categorías por defecto si hay error
     $categorias = [
         ['genero_literario' => 'Fantasía'],
         ['genero_literario' => 'Thriller'],
@@ -26,12 +33,11 @@ try {
         ['genero_literario' => 'Clásico'],
         ['genero_literario' => 'Misterio']
     ];
-    error_log("Error al obtener categorías: " . $e->getMessage());
 }
 ?>
 
 <main>
-
+    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
             <h1>Bienvenido a Los Círculos de Atenea</h1>
@@ -42,7 +48,7 @@ try {
             </div>
         </div>
         <div class="hero-image">
-            <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Libros y lectura">
+            <img src="img/hero-banner.jpg" alt="Libros y lectura" onerror="this.src='https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80'">
         </div>
     </section>
 
@@ -54,7 +60,7 @@ try {
         <div class="carousel-slide">
             <?php foreach ($libros_destacados as $libro): ?>
             <div class="carousel-item">
-                <img src="../uploads/libros/<?php echo htmlspecialchars($libro['imagen'] ?? 'default-book.png'); ?>" 
+                <img src="img/libros/<?php echo htmlspecialchars($libro['imagen'] ?? 'default-book.png'); ?>" 
                      alt="<?php echo htmlspecialchars($libro['titulo']); ?>" 
                      class="book-cover"
                      onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'">
@@ -85,7 +91,7 @@ try {
     <?php foreach ($libros_destacados as $libro): ?>
     <div id="libro-<?php echo $libro['book_id']; ?>" class="book-details">
         <div class="book-details-header">
-            <img src="../uploads/libros/<?php echo htmlspecialchars($libro['imagen'] ?? 'default-book.png'); ?>" 
+            <img src="img/libros/<?php echo htmlspecialchars($libro['imagen'] ?? 'default-book.png'); ?>" 
                  alt="<?php echo htmlspecialchars($libro['titulo']); ?>" 
                  class="book-details-cover"
                  onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'">
@@ -100,7 +106,13 @@ try {
                     <span class="book-category">Género: <?php echo htmlspecialchars($libro['genero_literario'] ?? 'No especificado'); ?></span>
                     <span class="book-stock">Stock: <?php echo $libro['stock'] ?? 0; ?></span>
                 </div>
-                <button class="add-to-cart" data-libro-id="<?php echo $libro['book_id']; ?>">Añadir al carrito</button>
+                <button class="add-to-cart" 
+                        data-book-id="<?php echo $libro['book_id']; ?>" 
+                        data-book-titulo="<?php echo htmlspecialchars($libro['titulo']); ?>" 
+                        data-book-precio="<?php echo $libro['precio']; ?>" 
+                        data-book-imagen="<?php echo htmlspecialchars($libro['imagen'] ?? 'default-book.png'); ?>">
+                    Añadir al carrito
+                </button>
             </div>
         </div>
         <a href="#" class="back-link">Volver al carrusel</a>
@@ -199,8 +211,13 @@ try {
         </div>
     </section>
 
-
 </main>
 
-<?php require_once 'footer.php'; ?>
-<script src="/VIEW/js/carrusel.js"></script>
+<?php 
+// Incluir footer desde la misma carpeta VIEW
+require_once 'footer.php'; 
+?>
+
+<!-- Incluir JS -->
+<script src="js/carrusel.js"></script>
+<script src="js/carrito.js"></script>
