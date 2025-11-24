@@ -49,7 +49,7 @@
             <nav class="navbar">
                 <ul class="navbar-enlaces">
                     <!-- index.php?pagina=x  cargar la página correspondiente -->
-                    <li><a href="index.php?pagina=inicio">Inicio</a></li>
+                    <li><a href="index.php?pagina=home">Inicio</a></li>
 
                     <!-- Menú desplegable para la tienda -->
                      <li class="dropdown">
