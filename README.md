@@ -16,4 +16,4 @@ Tecnologías utilizadas:
 
 -MYSQL
 
--Hostinger: bbdd y host
+-Hostinger: bbdd y host + dominio
