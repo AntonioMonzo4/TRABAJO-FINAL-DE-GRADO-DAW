@@ -1,77 +1,86 @@
 <?php
-session_start();
-$errores = $_SESSION['register_errors'] ?? [];
-$old = $_SESSION['register_old'] ?? [];
-unset($_SESSION['register_errors'], $_SESSION['register_old']);
 require_once __DIR__ . '/header.php';
 
+/* Si ya está logueado, fuera */
+if (isset($_SESSION['usuario'])) {
+    header("Location: /home");
+    exit;
+}
+
+/* Migas de pan */
 $items = [
     ['label' => 'Inicio', 'url' => '/home'],
     ['label' => 'Registro', 'url' => null],
 ];
-require __DIR__ . '/partials/breadcrumb.php';
+require_once __DIR__ . '/partials/breadcrumb.php';
 ?>
 
 <main class="page">
     <section class="container auth">
-        <h1>Registro</h1>
 
-        <?php if ($errores): ?>
-            <div class="alert error">
-                <ul>
-                    <?php foreach ($errores as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <h1>Crear cuenta</h1>
 
-        <form class="form" method="post" action="/register">
+        <form method="post" action="/register" class="form">
+
             <div class="grid-2">
                 <div>
-                    <label>Nombre*</label>
-                    <input name="nombre" required value="<?= htmlspecialchars($old['nombre'] ?? '') ?>">
+                    <label>Nombre *</label>
+                    <input type="text" name="nombre" required>
                 </div>
+
                 <div>
                     <label>Apellidos</label>
-                    <input name="apellidos" value="<?= htmlspecialchars($old['apellidos'] ?? '') ?>">
+                    <input type="text" name="apellidos">
                 </div>
             </div>
 
-            <label>Email*</label>
-            <input type="email" name="email" required value="<?= htmlspecialchars($old['email'] ?? '') ?>">
+            <label>Email *</label>
+            <input type="email" name="email" required>
 
             <div class="grid-2">
                 <div>
                     <label>Teléfono</label>
-                    <input name="telefono" value="<?= htmlspecialchars($old['telefono'] ?? '') ?>">
+                    <input type="text" name="telefono">
                 </div>
+
                 <div>
                     <label>Fecha de nacimiento</label>
-                    <input type="date" name="fecha_nacimiento" value="<?= htmlspecialchars($old['fecha_nacimiento'] ?? '') ?>">
+                    <input type="date" name="fecha_nacimiento">
                 </div>
             </div>
 
             <label>Género</label>
             <select name="genero">
                 <option value="">-- Selecciona --</option>
-                <?php foreach (['Hombre', 'Mujer', 'No especifica', 'Otro'] as $g): ?>
-                    <option value="<?= $g ?>" <?= (($old['genero'] ?? '') === $g) ? 'selected' : '' ?>><?= $g ?></option>
-                <?php endforeach; ?>
+                <option value="Hombre">Hombre</option>
+                <option value="Mujer">Mujer</option>
+                <option value="No especifica">No especifica</option>
+                <option value="Otro">Otro</option>
             </select>
 
             <div class="grid-2">
                 <div>
-                    <label>Contraseña*</label>
+                    <label>Contraseña *</label>
                     <input type="password" name="password" required>
                 </div>
+
                 <div>
-                    <label>Repetir contraseña*</label>
+                    <label>Repetir contraseña *</label>
                     <input type="password" name="password2" required>
                 </div>
             </div>
 
-            <button class="btn btn-primary" type="submit">Crear cuenta</button>
-            <p class="muted">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+            <button type="submit" class="btn btn-primary">
+                Registrarse
+            </button>
+
+            <p class="muted">
+                ¿Ya tienes cuenta?
+                <a href="/login">Inicia sesión</a>
+            </p>
+
         </form>
+
     </section>
 </main>
 

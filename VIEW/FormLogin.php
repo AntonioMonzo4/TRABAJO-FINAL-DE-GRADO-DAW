@@ -1,36 +1,34 @@
 <?php
-// VIEW/FormLogin.php
-session_start();
-$error = $_SESSION['login_error'] ?? null;
-unset($_SESSION['login_error']);
+// NO session_start aquí (ya está en header.php)
+require_once __DIR__ . '/header.php';
+
+/* Migas de pan */
+$items = [
+    ['label' => 'Inicio', 'url' => '/home'],
+    ['label' => 'Login', 'url' => null],
+];
+require_once __DIR__ . '/partials/breadcrumb.php';
 ?>
 
-<?php require_once __DIR__ . '/header.php'; ?>
+<main class="page">
+<section class="container auth">
 
-<main class="contenedor formulario-auth">
-    <h1>Iniciar sesión</h1>
+<h1>Iniciar sesión</h1>
 
-    <?php if ($error): ?>
-        <div class="alerta alerta-error">
-            <?= htmlspecialchars($error) ?>
-        </div>
-    <?php endif; ?>
+<form method="post" action="/login" class="form">
 
-    <form action="/login" method="post" class="formulario">
-        <div class="campo">
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" required>
-        </div>
+    <label>Email</label>
+    <input type="email" name="email" required>
 
-        <div class="campo">
-            <label for="password">Contraseña</label>
-            <input type="password" name="password" id="password" required>
-        </div>
+    <label>Contraseña</label>
+    <input type="password" name="password" required>
 
-        <button type="submit" class="btn btn-primario">Entrar</button>
-    </form>
+    <button class="btn btn-primary" type="submit">
+        Entrar
+    </button>
+</form>
 
-    <p>¿No tienes cuenta? <a href="/register">Regístrate aquí</a></p>
+</section>
 </main>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

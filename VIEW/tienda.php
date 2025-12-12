@@ -1,34 +1,37 @@
-<?php require_once __DIR__ . '/header.php'; ?>
-
 <?php
+require_once __DIR__ . '/header.php';
+
 $items = [
-  ['label'=>'Inicio', 'url'=>'/home'],
-  ['label'=>'Tienda', 'url'=>null],
+    ['label'=>'Inicio','url'=>'/home'],
+    ['label'=>'Tienda','url'=>null]
 ];
-require __DIR__ . '/partials/breadcrumb.php';
+require_once __DIR__ . '/partials/breadcrumb.php';
 ?>
 
 <main class="page">
-  <section class="container">
-    <h1>Tienda</h1>
-    <p>Elige qué quieres explorar:</p>
+<section class="container">
 
-    <div class="cards-2">
-      <a class="card-link" href="/books">
-        <div class="card">
-          <h2>Libros</h2>
-          <p>Explora nuestro catálogo de libros por título, autor o género.</p>
-        </div>
-      </a>
+<h1>Tienda</h1>
 
-      <a class="card-link" href="/otros">
+<div class="cards-2">
+
+    <a href="/books" class="card-link">
         <div class="card">
-          <h2>Otros productos</h2>
-          <p>Accesorios, artículos y productos complementarios.</p>
+            <h2>Libros</h2>
+            <p>Explora nuestro catálogo de libros.</p>
         </div>
-      </a>
-    </div>
-  </section>
+    </a>
+
+    <a href="/otros" class="card-link">
+        <div class="card">
+            <h2>Otros productos</h2>
+            <p>Productos complementarios relacionados con la lectura.</p>
+        </div>
+    </a>
+
+</div>
+
+</section>
 </main>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

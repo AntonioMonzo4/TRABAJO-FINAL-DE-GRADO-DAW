@@ -4413,3 +4413,117 @@ ul {
         grid-template-columns: 1fr
     }
 }
+
+
+
+/* =======================
+   DETALLE DE LIBRO
+======================= */
+
+.libro-detalle-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 40px;
+}
+
+.libro-imagen img {
+    width: 100%;
+    border-radius: 12px;
+}
+
+.libro-info h1 {
+    margin-top: 0;
+}
+
+.libro-info .autor {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.libro-info .precio {
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.libro-info .descripcion {
+    margin: 20px 0;
+    line-height: 1.6;
+}
+
+.stock.ok {
+    color: green;
+    font-weight: bold;
+}
+
+.stock.bad {
+    color: #b00020;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .libro-detalle-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tabla-carrito {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabla-carrito th,
+.tabla-carrito td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.carrito-total {
+    text-align: right;
+    font-size: 1.3rem;
+    margin-top: 20px;
+}
+
+.acciones-carrito {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-danger {
+    background: #b00020;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+}
+
+
+.cards-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.cards-4 .card {
+    text-align: center;
+    font-size: 1.4rem;
+}
+
+.flash {
+    max-width: 1200px;
+    margin: 10px auto;
+    padding: 12px 16px;
+    border-radius: 8px
+}
+
+.flash.success {
+    background: #e6fffa;
+    color: #065f46;
+    border: 1px solid #99f6e4
+}
+
+.flash.error {
+    background: #ffe6e6;
+    color: #7f1d1d;
+    border: 1px solid #fecaca
+}

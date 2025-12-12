@@ -3,65 +3,59 @@ require_once __DIR__ . '/header.php';
 require_once __DIR__ . '/../MODEL/conexion.php';
 
 $pdo = conexion::conexionBBDD();
-$genero = trim($_GET['genero'] ?? '');
 
-$sql = "SELECT * FROM books";
-$params = [];
+$genero = $_GET['genero'] ?? null;
 
-if ($genero !== '') {
-  $sql .= " WHERE genero_literario = :genero";
-  $params[':genero'] = $genero;
+if ($genero) {
+    $stmt = $pdo->prepare("SELECT * FROM books WHERE genero_literario = :g");
+    $stmt->execute([':g' => $genero]);
+} else {
+    $stmt = $pdo->query("SELECT * FROM books");
 }
-$sql .= " ORDER BY titulo ASC";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
 $libros = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+/* Migas de pan */
 $items = [
-  ['label'=>'Inicio', 'url'=>'/home'],
-  ['label'=>'Tienda', 'url'=>'/tienda'],
-  ['label'=>'Libros', 'url'=>null],
+    ['label' => 'Inicio', 'url' => '/home'],
+    ['label' => 'Tienda', 'url' => '/tienda'],
+    ['label' => 'Libros', 'url' => null],
 ];
-require __DIR__ . '/partials/breadcrumb.php';
+
+require_once __DIR__ . '/partials/breadcrumb.php';
 ?>
 
 <main class="page">
-  <section class="container">
-    <h1>Libros</h1>
+<section class="container">
 
-    <?php if ($genero !== ''): ?>
-      <p class="muted">Filtrando por género: <strong><?= htmlspecialchars($genero) ?></strong></p>
-    <?php endif; ?>
+<h1>Libros</h1>
 
-    <?php if (!$libros): ?>
-      <div class="empty">
-        <h3>No hay libros para mostrar</h3>
-        <p>Prueba otro género o vuelve a la tienda.</p>
-        <a class="btn btn-primary" href="/tienda">Volver a tienda</a>
-      </div>
-    <?php else: ?>
-      <div class="grid-products">
-        <?php foreach ($libros as $l): ?>
-          <article class="product">
-            <img
-              src="/VIEW/img/libros/<?= htmlspecialchars($l['imagen'] ?? 'default-book.png') ?>"
-              alt="<?= htmlspecialchars($l['titulo']) ?>"
-              onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=500&q=80'">
-            <h3><?= htmlspecialchars($l['titulo']) ?></h3>
-            <p class="muted"><?= htmlspecialchars($l['autor'] ?? '') ?></p>
-            <div class="row">
-              <span class="price"><?= number_format((float)$l['precio'], 2) ?> €</span>
-              <span class="stock <?= ((int)($l['stock'] ?? 0) > 0) ? 'ok' : 'bad' ?>">
-                <?= ((int)($l['stock'] ?? 0) > 0) ? 'En stock' : 'Sin stock' ?>
-              </span>
-            </div>
-            <a class="btn btn-secondary" href="/book/<?= (int)$l['book_id'] ?>">Ver detalle</a>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    <?php endif; ?>
-  </section>
+<?php if (!$libros): ?>
+    <p>No hay libros disponibles.</p>
+<?php else: ?>
+
+<div class="grid-products">
+<?php foreach ($libros as $l): ?>
+    <article class="product">
+        <img
+            src="/VIEW/img/libros/<?= htmlspecialchars($l['imagen'] ?? 'default-book.png') ?>"
+            alt="<?= htmlspecialchars($l['titulo']) ?>"
+            onerror="this.src='https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=500&q=80'">
+
+        <h3><?= htmlspecialchars($l['titulo']) ?></h3>
+        <p><?= htmlspecialchars($l['autor']) ?></p>
+        <p><strong><?= number_format($l['precio'], 2) ?> €</strong></p>
+
+        <a class="btn btn-secondary" href="/book/<?= (int)$l['book_id'] ?>">
+            Ver detalle
+        </a>
+    </article>
+<?php endforeach; ?>
+</div>
+
+<?php endif; ?>
+
+</section>
 </main>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

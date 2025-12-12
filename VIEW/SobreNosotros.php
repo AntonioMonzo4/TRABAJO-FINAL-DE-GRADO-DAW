@@ -1,36 +1,56 @@
-<?php require_once __DIR__ . '/header.php'; ?>
-
 <?php
+// IMPORTANTE: no pongas nada antes de este require
+require_once __DIR__ . '/header.php';
+
+// Migas de pan (definimos los items ANTES de incluir el partial)
 $items = [
-  ['label'=>'Inicio', 'url'=>'/home'],
-  ['label'=>'Sobre nosotros', 'url'=>null],
+  ['label' => 'Inicio', 'url' => '/home'],
+  ['label' => 'Sobre nosotros', 'url' => null],
 ];
-require __DIR__ . '/partials/breadcrumb.php';
+
+// Incluir breadcrumb usando ruta ABSOLUTA correcta
+require_once __DIR__ . '/partials/breadcrumb.php';
 ?>
 
 <main class="page">
   <section class="container">
     <h1>Sobre nosotros</h1>
+
     <p>
-      Los Círculos de Atenea es una librería online orientada a la lectura, la cultura y el conocimiento.
-      Seleccionamos títulos y productos para lectores curiosos, desde clásicos hasta novedades.
+      Los Círculos de Atenea es una librería online dedicada a la difusión de la
+      lectura, la cultura y el conocimiento. Nuestro objetivo es ofrecer una
+      experiencia de compra sencilla, accesible y cercana para todo tipo de lectores.
     </p>
 
     <div class="cards-3">
-      <article class="card">
+      <div class="card">
         <h3>Nuestra misión</h3>
-        <p>Acercar libros y cultura con un catálogo cuidado y una experiencia sencilla.</p>
-      </article>
-      <article class="card">
+        <p>
+          Facilitar el acceso a libros y productos culturales de calidad,
+          fomentando el aprendizaje y el pensamiento crítico.
+        </p>
+      </div>
+
+      <div class="card">
         <h3>Nuestros valores</h3>
-        <p>Calidad, servicio, transparencia y amor por la lectura (sí, esto también cuenta).</p>
-      </article>
-      <article class="card">
-        <h3>Contacto</h3>
-        <p>Escríbenos desde la sección de contacto o mediante el formulario de la web.</p>
-      </article>
+        <p>
+          Pasión por la lectura, compromiso con el cliente y mejora continua
+          de nuestros servicios.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>El proyecto</h3>
+        <p>
+          Esta plataforma ha sido desarrollada como proyecto final del ciclo
+          formativo de Desarrollo de Aplicaciones Web, aplicando arquitectura MVC
+          y buenas prácticas de programación.
+        </p>
+      </div>
     </div>
   </section>
 </main>
 
-<?php require_once __DIR__ . '/footer.php'; ?>
+<?php
+require_once __DIR__ . '/footer.php';
+?>

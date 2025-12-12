@@ -1,14 +1,18 @@
 <?php
-// $items = [['label'=>'Inicio','url'=>'/home'], ['label'=>'Tienda','url'=>'/tienda'], ['label'=>'Libros','url'=>null]]
+if (!isset($items) || !is_array($items)) {
+  return;
+}
 ?>
-<nav class="breadcrumb" aria-label="Migas de pan">
+<nav class="breadcrumb">
   <ol>
-    <?php foreach ($items as $i => $it): ?>
+    <?php foreach ($items as $item): ?>
       <li>
-        <?php if (!empty($it['url']) && $i < count($items)-1): ?>
-          <a href="<?= htmlspecialchars($it['url']) ?>"><?= htmlspecialchars($it['label']) ?></a>
+        <?php if (!empty($item['url'])): ?>
+          <a href="<?= htmlspecialchars($item['url']) ?>">
+            <?= htmlspecialchars($item['label']) ?>
+          </a>
         <?php else: ?>
-          <span aria-current="page"><?= htmlspecialchars($it['label']) ?></span>
+          <span><?= htmlspecialchars($item['label']) ?></span>
         <?php endif; ?>
       </li>
     <?php endforeach; ?>

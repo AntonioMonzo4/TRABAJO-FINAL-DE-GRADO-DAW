@@ -142,7 +142,83 @@ switch ($ruta) {
         if ($metodo === 'GET') cargarVista('OtrosProductos.php');
         break;
 
-  
+
+    case (preg_match('/^book\/(\d+)$/', $ruta, $matches) ? true : false):
+        if ($metodo === 'GET') {
+            $_GET['id'] = (int)$matches[1];
+            cargarVista('LibroDetalle.php');
+        }
+        break;
+
+
+    case "carrito/add":
+        if ($metodo === 'POST') {
+            require_once __DIR__ . '/../CONTROLLER/CarritoController.php';
+            CarritoController::add();
+        }
+        break;
+
+    case "carrito/update":
+        if ($metodo === 'POST') {
+            require_once __DIR__ . '/../CONTROLLER/CarritoController.php';
+            CarritoController::update();
+        }
+        break;
+
+    case "carrito/remove":
+        if ($metodo === 'POST') {
+            require_once __DIR__ . '/../CONTROLLER/CarritoController.php';
+            CarritoController::remove();
+        }
+        break;
+
+    case "checkout":
+        if ($metodo === 'GET') cargarVista('Checkout.php');
+        elseif ($metodo === 'POST') {
+            require_once __DIR__ . '/../CONTROLLER/PedidoController.php';
+            PedidoController::crear();
+        }
+        break;
+
+    case "pedido/ok":
+        if ($metodo === 'GET') cargarVista('PedidoOk.php');
+        break;
+
+
+    case "admin":
+        if ($metodo === 'GET') cargarVista('admin/Dashboard.php');
+        break;
+
+    case "admin/pedidos":
+        if ($metodo === 'GET') cargarVista('admin/Pedidos.php');
+        break;
+
+    case "admin/pedido":
+        if ($metodo === 'GET') cargarVista('admin/PedidoDetalle.php');
+        break;
+
+    case "admin/usuarios":
+        if ($metodo === 'GET') cargarVista('admin/Usuarios.php');
+        break;
+
+
+    case "admin/stock":
+        if ($metodo === 'GET') cargarVista('admin/Stock.php');
+        break;
+
+    case "admin/stock/edit":
+        if ($metodo === 'POST') {
+            require_once __DIR__ . '/../CONTROLLER/StockController.php';
+            StockController::actualizar();
+        }
+        break;
+
+    case "mis-pedidos":
+        if ($metodo === 'GET') cargarVista('MisPedidos.php');
+        break;
+
+
+
 
     /* ===============================
        SI LA RUTA NO EXISTE → 404
