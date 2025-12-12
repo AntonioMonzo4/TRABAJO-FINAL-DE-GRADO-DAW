@@ -29,7 +29,9 @@
  * }
  */
 
+// Clase para manejar la conexión a la base de datos usando PDO
 class Conexion {
+    
     // Método para conectar a la base de datos usando PDO
     public static function conexionBBDD() {
         // Datos de conexión a la base de datos
