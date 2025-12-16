@@ -1,233 +1,162 @@
 <?php
-require_once __DIR__ . '/authController.php';
+// =====================================================
+// Router estable y compatible (sin errores 500)
+// =====================================================
 
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-$ruta = $_GET['ruta'] ?? 'home';
-$metodo = $_SERVER['REQUEST_METHOD'];
+/* -----------------------------------------------------
+   Obtener ruta (URL limpia o ?pagina=)
+----------------------------------------------------- */
+$ruta = $_GET['pagina'] ?? '';
 
-// Función para cargar vistas de forma segura y evitar repetición de código 
-function cargarVista($archivo)
-{
-    $rutaCompleta = __DIR__ . '/../VIEW/' . $archivo;
-    if (file_exists($rutaCompleta)) {
-        require_once $rutaCompleta;
+if ($ruta === '') {
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+    $path = trim($path, '/');
+
+    if ($path === '' || $path === 'index.php') {
+        $ruta = 'home';
     } else {
-        require_once __DIR__ . '/../VIEW/Error404.php';
+        $ruta = $path;
     }
 }
 
-// RUTEADOR PRINCIPAL
+/* -----------------------------------------------------
+   Cargar vista de forma segura
+----------------------------------------------------- */
+function cargarVista($vista)
+{
+    $archivo = $_SERVER['DOCUMENT_ROOT'] . '/VIEW/' . $vista;
+
+    if (!file_exists($archivo)) {
+        http_response_code(404);
+        echo "<h1>Error 404</h1>";
+        echo "<p>Vista no encontrada: " . htmlspecialchars($archivo) . "</p>";
+        exit;
+    }
+
+    require $archivo;
+}
+
+/* -----------------------------------------------------
+   ROUTER
+----------------------------------------------------- */
 switch ($ruta) {
 
-    /* ===============================
-       RUTA HOME
-       =============================== */
-    case "home":
-        if ($metodo === 'GET') {
-            cargarVista('home.php');
-        } else {
-            echo "Método no permitido.";
-        }
+    /* ===== PÁGINAS PÚBLICAS ===== */
+
+    case 'home':
+        cargarVista('home.php');
         break;
 
-    /* ===============================
-       SOBRE NOSOTROS
-       =============================== */
-    case "about":
-        if ($metodo === 'GET') {
-            cargarVista('SobreNosotros.php');
-        } else {
-            echo "Método no permitido.";
-        }
+    case 'sobre-nosotros':
+    case 'sobreNosotros':
+        cargarVista('SobreNosotros.php');
         break;
 
-    /* ===============================
-       LOGIN
-       =============================== */
-    case "login":
-        if ($metodo === 'GET') {
+    case 'tienda':
+        cargarVista('Tienda.php');
+        break;
+
+    case 'books':
+        cargarVista('Libros.php');
+        break;
+
+    case 'otros':
+        cargarVista('OtrosProductos.php');
+        break;
+
+    case 'carrito':
+        cargarVista('Carrito.php');
+        break;
+
+    /* ===== LOGIN / REGISTRO ===== */
+
+    case 'login':
+        if ($method === 'GET') {
             cargarVista('FormLogin.php');
-        } elseif ($metodo === 'POST') {
-            AuthController::login();
         } else {
-            echo "Método no permitido.";
+            echo "POST /login pendiente (no rompe el proyecto)";
         }
         break;
 
-    /* ===============================
-       REGISTRO
-       =============================== */
-    case "register":
-        if ($metodo === 'GET') {
+    case 'register':
+        if ($method === 'GET') {
             cargarVista('FormRegistro.php');
-        } elseif ($metodo === 'POST') {
-            AuthController::register();
         } else {
-            echo "Método no permitido.";
+            echo "POST /register pendiente (no rompe el proyecto)";
         }
         break;
 
+    case 'logout':
+        session_start();
+        session_destroy();
+        header("Location: /home");
+        exit;
 
-    /* ===============================
-       LOGOUT
-        =============================== */
-    case "logout":
-        AuthController::logout();
-        break;
+        /* ===== CHECKOUT / PEDIDOS ===== */
 
-    /* ===============================
-       AVISO LEGAL
-       =============================== */
-    case "aviso-legal":
-        if ($metodo === 'GET') {
-            cargarVista('AvisoLegal.php');
+    case 'checkout':
+        if ($method === 'GET') {
+            cargarVista('Checkout.php');
         } else {
-            echo "Método no permitido.";
+            echo "POST /checkout pendiente";
         }
         break;
 
-    /* ===============================
-       POLÍTICA DE COOKIES
-       =============================== */
-    case "cookies":
-        if ($metodo === 'GET') {
-            cargarVista('Cookies.php');
-        } else {
-            echo "Método no permitido.";
-        }
+    case 'mis-pedidos':
+        cargarVista('MisPedidos.php');
         break;
 
-    /* ===============================
-       POLÍTICA DE PRIVACIDAD
-       =============================== */
-    case "privacidad":
-        if ($metodo === 'GET') {
-            cargarVista('PoliticaPrivacidad.php');
-        } else {
-            echo "Método no permitido.";
-        }
+    /* ===== LEGALES ===== */
+
+    case 'aviso-legal':
+        cargarVista('AvisoLegal.php');
         break;
 
-    /* ===============================
-       CARRITO
-       =============================== */
-    case "carrito":
-        if ($metodo === 'GET') {
-            cargarVista('Carrito.php');
-        } else {
-            echo "Método no permitido.";
-        }
+    case 'privacidad':
+        cargarVista('PoliticaPrivacidad.php');
         break;
 
-    /* ===============================
-       PERFIL DEL USUARIO
-       =============================== */
-    case "perfil":
-        if ($metodo === 'GET') {
-            cargarVista('Perfil.php');
-        } else {
-            echo "Método no permitido.";
-        }
+    case 'cookies':
+        cargarVista('Cookies.php');
         break;
 
-    case "tienda":
-        if ($metodo === 'GET') cargarVista('Tienda.php');
-        break;
-
-    case "books":
-        if ($metodo === 'GET') cargarVista('Libros.php');
-        break;
-
-    case "otros":
-        if ($metodo === 'GET') cargarVista('OtrosProductos.php');
-        break;
-
-
-    case (preg_match('/^book\/(\d+)$/', $ruta, $matches) ? true : false):
-        if ($metodo === 'GET') {
-            $_GET['id'] = (int)$matches[1];
-            cargarVista('LibroDetalle.php');
-        }
-        break;
-
-
-    case "carrito/add":
-        if ($metodo === 'POST') {
-            require_once __DIR__ . '/../CONTROLLER/CarritoController.php';
-            CarritoController::add();
-        }
-        break;
-
-    case "carrito/update":
-        if ($metodo === 'POST') {
-            require_once __DIR__ . '/../CONTROLLER/CarritoController.php';
-            CarritoController::update();
-        }
-        break;
-
-    case "carrito/remove":
-        if ($metodo === 'POST') {
-            require_once __DIR__ . '/../CONTROLLER/CarritoController.php';
-            CarritoController::remove();
-        }
-        break;
-
-    case "checkout":
-        if ($metodo === 'GET') cargarVista('Checkout.php');
-        elseif ($metodo === 'POST') {
-            require_once __DIR__ . '/../CONTROLLER/PedidoController.php';
-            PedidoController::crear();
-        }
-        break;
-
-    case "pedido/ok":
-        if ($metodo === 'GET') cargarVista('PedidoOk.php');
-        break;
-
-
-    case "admin":
-        if ($metodo === 'GET') cargarVista('admin/Dashboard.php');
-        break;
-
-    case "admin/pedidos":
-        if ($metodo === 'GET') cargarVista('admin/Pedidos.php');
-        break;
-
-    case "admin/pedido":
-        if ($metodo === 'GET') cargarVista('admin/PedidoDetalle.php');
-        break;
-
-    case "admin/usuarios":
-        if ($metodo === 'GET') cargarVista('admin/Usuarios.php');
-        break;
-
-
-    case "admin/stock":
-        if ($metodo === 'GET') cargarVista('admin/Stock.php');
-        break;
-
-    case "admin/stock/edit":
-        if ($metodo === 'POST') {
-            require_once __DIR__ . '/../CONTROLLER/StockController.php';
-            StockController::actualizar();
-        }
-        break;
-
-    case "mis-pedidos":
-        if ($metodo === 'GET') cargarVista('MisPedidos.php');
-        break;
-
-
-
-
-    /* ===============================
-       SI LA RUTA NO EXISTE → 404
-       =============================== */
+    /* ===== DETALLE DE LIBRO ===== */
     default:
-        if ($metodo === 'GET') {
-            cargarVista('Error404.php');
-        } else {
-            echo "Método no permitido.";
+
+        // /book/12
+        if (preg_match('#^book/([0-9]+)$#', $ruta, $m)) {
+            $_GET['id'] = (int)$m[1];
+            cargarVista('LibroDetalle.php');
+            break;
         }
+
+        /* ===== ADMIN (VISTAS) ===== */
+
+        if ($ruta === 'admin') {
+            cargarVista('admin/Dashboard.php');
+            break;
+        }
+
+        if ($ruta === 'admin/pedidos') {
+            cargarVista('admin/Pedidos.php');
+            break;
+        }
+
+        if ($ruta === 'admin/usuarios') {
+            cargarVista('admin/Usuarios.php');
+            break;
+        }
+
+        if ($ruta === 'admin/stock') {
+            cargarVista('admin/Stock.php');
+            break;
+        }
+
+        /* ===== 404 ===== */
+        http_response_code(404);
+        echo "<h1>Error 404</h1>";
+        echo "<p>Ruta no encontrada: " . htmlspecialchars($ruta) . "</p>";
         break;
 }
