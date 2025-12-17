@@ -1,59 +1,154 @@
 <?php
-// =====================================================
-// Router estable y compatible (sin errores 500)
-// =====================================================
-
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-/* -----------------------------------------------------
-   Obtener ruta (URL limpia o ?pagina=)
------------------------------------------------------ */
+/* ---------------------------
+   Obtener ruta: /tienda o /index.php?pagina=tienda
+---------------------------- */
 $ruta = $_GET['pagina'] ?? '';
-
 if ($ruta === '') {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
-    $path = trim($path, '/');
-
-    if ($path === '' || $path === 'index.php') {
-        $ruta = 'home';
-    } else {
-        $ruta = $path;
-    }
+    $ruta = trim((string)$path, '/');
+    if ($ruta === '' || $ruta === 'index.php') $ruta = 'home';
 }
 
-/* -----------------------------------------------------
-   Cargar vista de forma segura
------------------------------------------------------ */
-function cargarVista($vista)
-{
-    $archivo = $_SERVER['DOCUMENT_ROOT'] . '/VIEW/' . $vista;
+/* Normaliza (por si llega con espacios o barras) */
+$ruta = trim($ruta);
+$ruta = ltrim($ruta, '/');
 
-    if (!file_exists($archivo)) {
-        http_response_code(404);
-        echo "<h1>Error 404</h1>";
-        echo "<p>Vista no encontrada: " . htmlspecialchars($archivo) . "</p>";
+/* ---------------------------
+   Cargar vista robusto:
+   - VIEW o view
+   - Tienda.php o tienda.php
+---------------------------- */
+function cargarVista(string $vista): void
+{
+    $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+
+    $candidatos = [
+        $docRoot . '/VIEW/' . $vista,
+        $docRoot . '/view/' . $vista,
+        __DIR__ . '/../VIEW/' . $vista,
+        __DIR__ . '/../view/' . $vista,
+
+        // Variante en minúsculas (Linux)
+        $docRoot . '/VIEW/' . strtolower($vista),
+        $docRoot . '/view/' . strtolower($vista),
+        __DIR__ . '/../VIEW/' . strtolower($vista),
+        __DIR__ . '/../view/' . strtolower($vista),
+    ];
+
+    foreach ($candidatos as $archivo) {
+        if ($archivo && file_exists($archivo)) {
+            require $archivo;
+            return;
+        }
+    }
+
+    http_response_code(404);
+    echo "<h1>Error 404</h1>";
+    echo "<p>Vista no encontrada: " . htmlspecialchars($vista) . "</p>";
+    exit;
+}
+
+/* ---------------------------
+   Acciones de carrito sin controlador (para que NO falle carrito/add)
+---------------------------- */
+function carritoInit(): void
+{
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    if (!isset($_SESSION['carrito']) || !is_array($_SESSION['carrito'])) $_SESSION['carrito'] = [];
+}
+
+function carritoAdd(): void
+{
+    carritoInit();
+
+    // Espera POST: id, titulo, precio, cantidad (opcional)
+    $id = (int)($_POST['id'] ?? 0);
+    $titulo = (string)($_POST['titulo'] ?? '');
+    $precio = (float)($_POST['precio'] ?? 0);
+    $cantidad = (int)($_POST['cantidad'] ?? 1);
+    if ($id <= 0 || $titulo === '' || $precio <= 0) {
+        http_response_code(400);
+        echo "Datos de carrito inválidos";
         exit;
     }
 
-    require $archivo;
+    if (!isset($_SESSION['carrito'][$id])) {
+        $_SESSION['carrito'][$id] = [
+            'id' => $id,
+            'titulo' => $titulo,
+            'precio' => $precio,
+            'cantidad' => max(1, $cantidad),
+        ];
+    } else {
+        $_SESSION['carrito'][$id]['cantidad'] += max(1, $cantidad);
+    }
+
+    header("Location: /carrito");
+    exit;
 }
 
-/* -----------------------------------------------------
-   ROUTER
------------------------------------------------------ */
+function carritoRemove(): void
+{
+    carritoInit();
+    $id = (int)($_POST['id'] ?? 0);
+    if ($id > 0) unset($_SESSION['carrito'][$id]);
+    header("Location: /carrito");
+    exit;
+}
+
+function carritoUpdate(): void
+{
+    carritoInit();
+    $id = (int)($_POST['id'] ?? 0);
+    $cantidad = (int)($_POST['cantidad'] ?? 1);
+    if ($id > 0 && isset($_SESSION['carrito'][$id])) {
+        $_SESSION['carrito'][$id]['cantidad'] = max(1, $cantidad);
+    }
+    header("Location: /carrito");
+    exit;
+}
+
+function carritoVaciar(): void
+{
+    carritoInit();
+    $_SESSION['carrito'] = [];
+    header("Location: /carrito");
+    exit;
+}
+
+/* ---------------------------
+   Router
+---------------------------- */
 switch ($ruta) {
 
-    /* ===== PÁGINAS PÚBLICAS ===== */
-
+    // Home
     case 'home':
         cargarVista('home.php');
         break;
 
+    case 'login':
+        cargarVista('FormLogin.php');
+        break;
+
+    case 'register':
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
+            cargarVista('FormRegistro.php');
+        } else {
+            require_once __DIR__ . '/AuthController.php';
+            AuthController::register();
+        }
+        break;
+
+    // Sobre nosotros (tu header usa /about)
+    case 'about':
     case 'sobre-nosotros':
     case 'sobreNosotros':
         cargarVista('SobreNosotros.php');
         break;
 
+    // Tienda / Libros / Otros
     case 'tienda':
         cargarVista('Tienda.php');
         break;
@@ -66,95 +161,69 @@ switch ($ruta) {
         cargarVista('OtrosProductos.php');
         break;
 
+    // Carrito
     case 'carrito':
         cargarVista('Carrito.php');
         break;
 
-    /* ===== LOGIN / REGISTRO ===== */
-
-    case 'login':
-        if ($method === 'GET') {
-            cargarVista('FormLogin.php');
-        } else {
-            echo "POST /login pendiente (no rompe el proyecto)";
-        }
-        break;
-
-    case 'register':
-        if ($method === 'GET') {
-            cargarVista('FormRegistro.php');
-        } else {
-            echo "POST /register pendiente (no rompe el proyecto)";
-        }
-        break;
-
-    case 'logout':
-        session_start();
-        session_destroy();
-        header("Location: /home");
+    case 'carrito/add':
+        if ($method === 'POST') carritoAdd();
+        http_response_code(405);
+        echo "Método no permitido";
         exit;
 
-        /* ===== CHECKOUT / PEDIDOS ===== */
+    case 'carrito/remove':
+        if ($method === 'POST') carritoRemove();
+        http_response_code(405);
+        echo "Método no permitido";
+        exit;
 
-    case 'checkout':
-        if ($method === 'GET') {
-            cargarVista('Checkout.php');
-        } else {
-            echo "POST /checkout pendiente";
-        }
-        break;
+    case 'carrito/update':
+        if ($method === 'POST') carritoUpdate();
+        http_response_code(405);
+        echo "Método no permitido";
+        exit;
 
-    case 'mis-pedidos':
-        cargarVista('MisPedidos.php');
-        break;
+    case 'vaciar_carrito':
+        if ($method === 'POST') carritoVaciar();
+        http_response_code(405);
+        echo "Método no permitido";
+        exit;
 
-    /* ===== LEGALES ===== */
-
-    case 'aviso-legal':
-        cargarVista('AvisoLegal.php');
-        break;
-
+        // Legales (tu footer enlaza con .php y con guiones/bajos)
     case 'privacidad':
+    case 'privacidad.php':
         cargarVista('PoliticaPrivacidad.php');
         break;
 
+
+
+    case 'aviso-legal':
+    case 'aviso_legal.php':
+        cargarVista('AvisoLegal.php');
+        break;
+
     case 'cookies':
+    case 'cookies.php':
         cargarVista('Cookies.php');
         break;
 
-    /* ===== DETALLE DE LIBRO ===== */
-    default:
+    // Si tienes términos/condiciones con otro nombre de ruta
+    case 'terminos':
+    case 'terminos-y-condiciones':
+    case 'condiciones':
+        // ajusta aquí el nombre real de tu vista si la tienes
+        cargarVista('TerminosCondiciones.php');
+        break;
 
-        // /book/12
+    default:
+        // Detalle libro: /book/12
         if (preg_match('#^book/([0-9]+)$#', $ruta, $m)) {
             $_GET['id'] = (int)$m[1];
             cargarVista('LibroDetalle.php');
             break;
         }
 
-        /* ===== ADMIN (VISTAS) ===== */
-
-        if ($ruta === 'admin') {
-            cargarVista('admin/Dashboard.php');
-            break;
-        }
-
-        if ($ruta === 'admin/pedidos') {
-            cargarVista('admin/Pedidos.php');
-            break;
-        }
-
-        if ($ruta === 'admin/usuarios') {
-            cargarVista('admin/Usuarios.php');
-            break;
-        }
-
-        if ($ruta === 'admin/stock') {
-            cargarVista('admin/Stock.php');
-            break;
-        }
-
-        /* ===== 404 ===== */
         http_response_code(404);
         echo "<h1>Error 404</h1>";
         echo "<p>Ruta no encontrada: " . htmlspecialchars($ruta) . "</p>";

@@ -1,18 +1,20 @@
 <?php
 require_once __DIR__ . '/header.php';
 
-/* Si ya está logueado, fuera */
-if (isset($_SESSION['usuario'])) {
-    header("Location: /home");
-    exit;
-}
+if (session_status() === PHP_SESSION_NONE) session_start();
 
-/* Migas de pan */
+// Migas de pan (si las usas)
 $items = [
     ['label' => 'Inicio', 'url' => '/home'],
     ['label' => 'Registro', 'url' => null],
 ];
-require_once __DIR__ . '/partials/breadcrumb.php';
+if (file_exists(__DIR__ . '/partials/breadcrumb.php')) {
+    require_once __DIR__ . '/partials/breadcrumb.php';
+}
+
+// Flash simple (si lo usas)
+$flash = $_SESSION['flash'] ?? null;
+unset($_SESSION['flash']);
 ?>
 
 <main class="page">
@@ -20,27 +22,42 @@ require_once __DIR__ . '/partials/breadcrumb.php';
 
         <h1>Crear cuenta</h1>
 
-        <form method="post" action="/register" class="form">
+        <?php if ($flash): ?>
+            <div class="alert <?= htmlspecialchars($flash['type'] ?? 'info') ?>">
+                <?= htmlspecialchars($flash['msg'] ?? '') ?>
+            </div>
+        <?php endif; ?>
+
+        <form method="post" action="/register" class="form" autocomplete="on">
 
             <div class="grid-2">
                 <div>
                     <label>Nombre *</label>
-                    <input type="text" name="nombre" required>
+                    <input
+                        type="text" name="nombre" required maxlength="100"
+                        pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ ]{2,100}"
+                        title="Solo letras y espacios (2-100)">
                 </div>
 
                 <div>
                     <label>Apellidos</label>
-                    <input type="text" name="apellidos">
+                    <input
+                        type="text" name="apellidos" maxlength="150"
+                        pattern="[A-Za-zÁÉÍÓÚáéíóúñÑ ]{0,150}"
+                        title="Solo letras y espacios">
                 </div>
             </div>
 
             <label>Email *</label>
-            <input type="email" name="email" required>
+            <input type="email" name="email" required maxlength="150">
 
             <div class="grid-2">
                 <div>
                     <label>Teléfono</label>
-                    <input type="text" name="telefono">
+                    <input
+                        type="text" name="telefono" maxlength="20"
+                        pattern="[0-9+\-\s]{6,20}"
+                        title="Solo números, espacios, + y - (6-20)">
                 </div>
 
                 <div>
@@ -61,23 +78,21 @@ require_once __DIR__ . '/partials/breadcrumb.php';
             <div class="grid-2">
                 <div>
                     <label>Contraseña *</label>
-                    <input type="password" name="password" required>
+                    <input
+                        type="password" name="password" required minlength="10" maxlength="72"
+                        pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,72}"
+                        title="Mínimo 10 caracteres, con mayúscula, minúscula, número y símbolo">
                 </div>
 
                 <div>
                     <label>Repetir contraseña *</label>
-                    <input type="password" name="password2" required>
+                    <input type="password" name="password2" required minlength="10" maxlength="72">
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Registrarse
-            </button>
+            <button class="btn btn-primary" type="submit">Registrarse</button>
 
-            <p class="muted">
-                ¿Ya tienes cuenta?
-                <a href="/login">Inicia sesión</a>
-            </p>
+            <p class="muted">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
 
         </form>
 
