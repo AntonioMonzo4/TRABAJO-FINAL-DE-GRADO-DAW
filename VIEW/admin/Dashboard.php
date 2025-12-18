@@ -5,43 +5,61 @@ require_once __DIR__ . '/../header.php';
 require_once __DIR__ . '/../../MODEL/conexion.php';
 $pdo = conexion::conexionBBDD();
 
-$totalPedidos = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
-$totalIngresos = $pdo->query("SELECT SUM(precio_total) FROM orders")->fetchColumn();
-$totalUsuarios = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-$sinStock = $pdo->query("SELECT COUNT(*) FROM books WHERE stock <= 0")->fetchColumn();
+// KPI básicos
+$totalPedidos  = (int)$pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn();
+$totalIngresos = $pdo->query("SELECT COALESCE(SUM(precio_total), 0) FROM orders")->fetchColumn();
+$totalUsuarios = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 
+$librosSinStock = (int)$pdo->query("SELECT COUNT(*) FROM books WHERE stock <= 0")->fetchColumn();
 
-/* Migas */
+// Otros productos sin stock (si existe la tabla)
+$otrosSinStock = 0;
+try {
+    $otrosSinStock = (int)$pdo->query("SELECT COUNT(*) FROM other_products WHERE stock <= 0")->fetchColumn();
+} catch (Throwable $e) {
+    // Si no existe o hay error, no rompemos el panel
+    $otrosSinStock = 0;
+}
+
+// Migas
 $items = [
     ['label' => 'Inicio', 'url' => '/home'],
-    ['label' => 'Admin', 'url' => null]
+    ['label' => 'Admin', 'url' => null],
 ];
-require __DIR__ . '/../partials/breadcrumb.php';
+if (file_exists(__DIR__ . '/../partials/breadcrumb.php')) {
+    require __DIR__ . '/../partials/breadcrumb.php';
+}
 ?>
 
 <main class="page">
     <section class="container">
+
+        <h1>Panel de administración</h1>
 
         <div class="cards-4">
             <div class="card">
                 <h3>Pedidos</h3>
                 <p><?= $totalPedidos ?></p>
             </div>
+
             <div class="card">
                 <h3>Ingresos</h3>
-                <p><?= number_format($totalIngresos ?? 0, 2) ?> €</p>
+                <p><?= number_format((float)$totalIngresos, 2) ?> €</p>
             </div>
+
             <div class="card">
                 <h3>Usuarios</h3>
                 <p><?= $totalUsuarios ?></p>
             </div>
+
             <div class="card">
-                <h3>Libros sin stock</h3>
-                <p><?= $sinStock ?></p>
+                <h3>Sin stock</h3>
+                <p><?= $librosSinStock + $otrosSinStock ?></p>
+                <small>Libros: <?= $librosSinStock ?> · Otros: <?= $otrosSinStock ?></small>
             </div>
         </div>
 
-        <h1>Panel de administración</h1>
+        <h2>Gestión</h2>
 
         <div class="cards-3">
             <a href="/admin/pedidos" class="card-link">
@@ -54,17 +72,18 @@ require __DIR__ . '/../partials/breadcrumb.php';
             <a href="/admin/usuarios" class="card-link">
                 <div class="card">
                     <h3>Usuarios</h3>
-                    <p>Listado de usuarios registrados</p>
+                    <p>Listado y control de cuentas</p>
                 </div>
             </a>
 
             <a href="/admin/stock" class="card-link">
                 <div class="card">
                     <h3>Stock</h3>
-                    <p>Gestión de productos</p>
+                    <p>Gestión de libros y otros productos</p>
                 </div>
             </a>
         </div>
+
     </section>
 </main>
 

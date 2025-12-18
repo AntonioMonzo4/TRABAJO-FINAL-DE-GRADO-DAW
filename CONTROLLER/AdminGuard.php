@@ -1,10 +1,12 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (
-    !isset($_SESSION['usuario']) ||
-    $_SESSION['usuario']['rol'] !== 'admin'
+    !isset($_SESSION['user']) ||
+    ($_SESSION['user']['rol'] ?? '') !== 'admin'
 ) {
-    header("Location: /home");
+    header("Location: /login");
     exit;
 }

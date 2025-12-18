@@ -128,9 +128,7 @@ switch ($ruta) {
         cargarVista('home.php');
         break;
 
-    case 'login':
-        cargarVista('FormLogin.php');
-        break;
+    
 
     case 'register':
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
@@ -215,6 +213,32 @@ switch ($ruta) {
         // ajusta aquí el nombre real de tu vista si la tienes
         cargarVista('TerminosCondiciones.php');
         break;
+
+    case 'login':
+        if ($method === 'GET') {
+            cargarVista('FormLogin.php');
+        } else {
+            require_once __DIR__ . '/AuthController.php';
+            AuthController::login();
+        }
+        break;
+
+    case 'logout':
+        require_once __DIR__ . '/AuthController.php';
+        AuthController::logout();
+        break;
+
+    case 'admin':
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (empty($_SESSION['user']) || ($_SESSION['user']['rol'] ?? '') !== 'admin') {
+            header("Location: /login");
+            exit;
+        }
+        cargarVista('admin/Dashboard.php');
+        break;
+    
+    
+
 
     default:
         // Detalle libro: /book/12

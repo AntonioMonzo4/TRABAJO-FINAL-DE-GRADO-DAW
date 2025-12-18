@@ -98,4 +98,53 @@ class AuthController
         header("Location: /login");
         exit;
     }
+
+    public static function login(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        $email = strtolower(trim((string)($_POST['email'] ?? '')));
+        $pass  = (string)($_POST['password'] ?? '');
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $pass === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Email o contraseña inválidos'];
+            header("Location: /login");
+            exit;
+        }
+
+        $pdo = conexion::conexionBBDD();
+        $st = $pdo->prepare("SELECT user_id, nombre, email, password_hash, rol FROM users WHERE email = :email LIMIT 1");
+        $st->execute([':email' => $email]);
+        $u = $st->fetch(PDO::FETCH_ASSOC);
+
+        if (!$u || !password_verify($pass, $u['password_hash'])) {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Credenciales incorrectas'];
+            header("Location: /login");
+            exit;
+        }
+
+        // Sesión
+        $_SESSION['user'] = [
+            'id'    => (int)$u['user_id'],
+            'nombre' => $u['nombre'],
+            'email' => $u['email'],
+            'rol'   => $u['rol'], // <-- CLAVE: aquí entra 'admin'
+        ];
+
+        // Redirección según rol
+        if ($u['rol'] === 'admin') {
+            header("Location: /admin");
+        } else {
+            header("Location: /home");
+        }
+        exit;
+    }
+
+    public static function logout(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        session_destroy();
+        header("Location: /home");
+        exit;
+    }
 }

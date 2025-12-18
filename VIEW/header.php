@@ -4,6 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+if (session_status() === PHP_SESSION_NONE) session_start();
+$user = $_SESSION['user'] ?? null;
+
 // Datos de usuario logueado (si existe)
 $usuario = $_SESSION['usuario'] ?? null;
 
@@ -65,7 +68,7 @@ $carritoCount = $_SESSION['carrito_count'] ?? 0;
                 </ul>
             </nav>
 
-            <?php if (isset($_SESSION['usuario']) && $_SESSION['usuario']['rol'] === 'admin'): ?>
+            <?php if ($user && ($user['rol'] ?? '') === 'admin'):  ?>
                 <a href="/admin">Admin</a>
             <?php endif; ?>
 
