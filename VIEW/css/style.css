@@ -4924,62 +4924,72 @@ ul {
 }
 
 
-/* HOME - DESTACADOS GRID */
-.destacados-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    column-gap: 18px;
-    row-gap: 22px;
-    margin-top: var(--espacio-lg);
+/* ==========================================
+   HOME: carrusel -> layout estático con FLEX
+   (sin tocar HTML: .carousel-slide / .carousel-item)
+========================================== */
+
+.carousel-slide {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 18px 18px;                /* row-gap / column-gap */
+  transform: none !important;    /* por si el JS del carrusel movía el contenedor */
+  transition: none !important;
 }
 
-.destacado-card {
-    background: var(--color-blanco);
-    border-radius: var(--radio-borde);
-    box-shadow: var(--sombra-suave);
-    padding: 14px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+/* 4 columnas desktop */
+.carousel-item {
+  flex: 0 0 calc((100% - (18px * 3)) / 4) !important; /* 4 items -> 3 gaps */
+  min-width: 0 !important;        /* anula min-width:25% del carrusel */
+  padding: 0 !important;          /* anula padding lateral del carrusel */
+  text-align: center;
 }
 
-.destacado-card img {
+/* Imagen */
+.carousel-item img,
+.carousel-item .book-cover {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  border-radius: var(--radio-borde);
+  display: block;
+  margin-bottom: var(--espacio-sm);
+}
+
+/* ===== TABLET: 2 columnas ===== */
+@media (max-width: 1024px) {
+  .carousel-slide {
+    gap: 16px 16px;
+  }
+
+  .carousel-item {
+    flex: 0 0 calc((100% - 16px) / 2) !important;  /* 2 items -> 1 gap */
+  }
+
+  .carousel-item img,
+  .carousel-item .book-cover {
+    height: 190px;
+  }
+}
+
+/* ===== MÓVIL: 1 columna ===== */
+@media (max-width: 768px) {
+  .carousel-slide {
+    gap: 14px;
+  }
+
+  .carousel-item {
+    flex: 0 0 100% !important;
+    text-align: left;
+  }
+
+  .carousel-item img,
+  .carousel-item .book-cover {
+    height: 170px;
+  }
+
+  .carousel-item .btn {
     width: 100%;
-    height: 240px;
-    object-fit: cover;
-    border-radius: 10px;
-    display: block;
-}
-
-@media (max-width:1024px) {
-    .destacados-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        row-gap: 18px;
-        column-gap: 16px;
-    }
-
-    .destacado-card img {
-        height: 190px;
-    }
-}
-
-@media (max-width:768px) {
-    .destacados-grid {
-        grid-template-columns: 1fr;
-        row-gap: 14px;
-    }
-
-    .destacado-card {
-        text-align: left;
-    }
-
-    .destacado-card img {
-        height: 170px;
-    }
-
-    .destacado-card .btn {
-        width: 100%;
-        text-align: center;
-    }
+    text-align: center;
+  }
 }
