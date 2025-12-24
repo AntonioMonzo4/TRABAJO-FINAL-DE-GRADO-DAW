@@ -4930,66 +4930,38 @@ ul {
 ========================================== */
 
 .carousel-slide {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 18px 18px;                /* row-gap / column-gap */
-  transform: none !important;    /* por si el JS del carrusel movía el contenedor */
-  transition: none !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 18px 18px;
+    transform: none !important;
+    transition: none !important;
 }
 
-/* 4 columnas desktop */
+/* Desktop: 4 por fila => 2 filas si hay 8 */
 .carousel-item {
-  flex: 0 0 calc((100% - (18px * 3)) / 4) !important; /* 4 items -> 3 gaps */
-  min-width: 0 !important;        /* anula min-width:25% del carrusel */
-  padding: 0 !important;          /* anula padding lateral del carrusel */
-  text-align: center;
+    flex: 0 0 calc((100% - (18px * 3)) / 4) !important;
+    min-width: 0 !important;
+    padding: 0 !important;
 }
 
-/* Imagen */
-.carousel-item img,
-.carousel-item .book-cover {
-  width: 100%;
-  height: 240px;
-  object-fit: cover;
-  border-radius: var(--radio-borde);
-  display: block;
-  margin-bottom: var(--espacio-sm);
+/* Tablet: 2 por fila */
+@media (max-width:1024px) {
+    .carousel-slide {
+        gap: 16px 16px;
+    }
+
+    .carousel-item {
+        flex: 0 0 calc((100% - 16px) / 2) !important;
+    }
 }
 
-/* ===== TABLET: 2 columnas ===== */
-@media (max-width: 1024px) {
-  .carousel-slide {
-    gap: 16px 16px;
-  }
+/* Móvil: 1 columna */
+@media (max-width:768px) {
+    .carousel-slide {
+        gap: 14px;
+    }
 
-  .carousel-item {
-    flex: 0 0 calc((100% - 16px) / 2) !important;  /* 2 items -> 1 gap */
-  }
-
-  .carousel-item img,
-  .carousel-item .book-cover {
-    height: 190px;
-  }
-}
-
-/* ===== MÓVIL: 1 columna ===== */
-@media (max-width: 768px) {
-  .carousel-slide {
-    gap: 14px;
-  }
-
-  .carousel-item {
-    flex: 0 0 100% !important;
-    text-align: left;
-  }
-
-  .carousel-item img,
-  .carousel-item .book-cover {
-    height: 170px;
-  }
-
-  .carousel-item .btn {
-    width: 100%;
-    text-align: center;
-  }
+    .carousel-item {
+        flex: 0 0 100% !important;
+    }
 }
