@@ -4924,23 +4924,15 @@ ul {
 }
 
 
-
-/* =======================
-   HOME - DESTACADOS (GRID ESTÁTICO, SIN CARRUSEL)
-   Desktop: 4 columnas (2 filas si hay 8 libros)
-   Tablet:  2 columnas
-   Móvil:   1 columna
-======================= */
-
+/* HOME - DESTACADOS GRID */
 .destacados-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    column-gap: 18px;   /* separación horizontal */
-    row-gap: 22px;      /* separación entre filas (no mucha, pero suficiente) */
+    column-gap: 18px;
+    row-gap: 22px;
     margin-top: var(--espacio-lg);
 }
 
-/* Tarjeta */
 .destacado-card {
     background: var(--color-blanco);
     border-radius: var(--radio-borde);
@@ -4950,15 +4942,8 @@ ul {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    transition: var(--transicion-rapida);
 }
 
-.destacado-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--sombra-media);
-}
-
-/* Imagen (desktop más grande) */
 .destacado-card img {
     width: 100%;
     height: 240px;
@@ -4967,49 +4952,19 @@ ul {
     display: block;
 }
 
-/* Texto */
-.destacado-card h3 {
-    font-size: 1.05rem;
-    color: var(--color-primario);
-    margin: 6px 0 0;
-    line-height: 1.25;
-}
-
-.destacado-card p {
-    margin: 0;
-    color: var(--color-gris-claro);
-    font-size: 0.95rem;
-}
-
-.destacado-card span {
-    font-weight: 700;
-    color: var(--color-acento);
-    font-size: 1.05rem;
-}
-
-/* ===== TABLET (2 columnas + imagen más pequeña) ===== */
-@media (max-width: 1024px) {
+@media (max-width:1024px) {
     .destacados-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        column-gap: 16px;
         row-gap: 18px;
-    }
-
-    .destacado-card {
-        padding: 12px;
+        column-gap: 16px;
     }
 
     .destacado-card img {
         height: 190px;
     }
-
-    .destacado-card h3 {
-        font-size: 1rem;
-    }
 }
 
-/* ===== MÓVIL (1 columna + imagen más pequeña) ===== */
-@media (max-width: 768px) {
+@media (max-width:768px) {
     .destacados-grid {
         grid-template-columns: 1fr;
         row-gap: 14px;
