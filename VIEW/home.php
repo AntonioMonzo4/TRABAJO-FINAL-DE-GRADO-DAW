@@ -48,13 +48,12 @@ try {
             <div class="container">
                 <h2>Libros destacados</h2>
 
-                <div class="carousel-slide">
+                <div class="destacados-grid">
                     <?php foreach ($libros_destacados as $libro): ?>
-                        <article class="carousel-item">
+                        <article class="destacado-card">
                             <img
                                 src="/VIEW/img/libros/<?= htmlspecialchars($libro['imagen'] ?? 'default-book.png') ?>"
-                                alt="<?= htmlspecialchars($libro['titulo']) ?>"
-                            >
+                                alt="<?= htmlspecialchars($libro['titulo']) ?>">
                             <h3><?= htmlspecialchars($libro['titulo']) ?></h3>
                             <p><?= htmlspecialchars($libro['autor']) ?></p>
                             <span><?= number_format($libro['precio'], 2) ?> €</span>
@@ -65,6 +64,7 @@ try {
                         </article>
                     <?php endforeach; ?>
                 </div>
+
             </div>
         </section>
     <?php endif; ?>
@@ -76,7 +76,7 @@ try {
             <div class="grid-categorias">
                 <?php foreach ($categorias as $cat): ?>
                     <a href="/books?genero=<?= urlencode($cat['genero_literario']) ?>"
-                       class="categoria-card">
+                        class="categoria-card">
                         <h3><?= htmlspecialchars($cat['genero_literario']) ?></h3>
                     </a>
                 <?php endforeach; ?>
@@ -116,5 +116,4 @@ try {
 
 <?php require_once __DIR__ . '/footer.php'; ?>
 
-<script src="/VIEW/js/carrusel.js"></script>
 <script src="/VIEW/js/carrito.js"></script>
