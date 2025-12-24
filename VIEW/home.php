@@ -47,23 +47,39 @@ try {
         <section class="destacados">
             <div class="container">
                 <h2>Libros destacados</h2>
+                <section class="carousel-container">
+                    <div class="container">
+                        <h2 class="carousel-title">Libros destacados</h2>
 
-                <div class="destacados-grid">
-                    <?php foreach ($libros_destacados as $libro): ?>
-                        <article class="destacado-card">
-                            <img
-                                src="/VIEW/img/libros/<?= htmlspecialchars($libro['imagen'] ?? 'default-book.png') ?>"
-                                alt="<?= htmlspecialchars($libro['titulo']) ?>">
-                            <h3><?= htmlspecialchars($libro['titulo']) ?></h3>
-                            <p><?= htmlspecialchars($libro['autor']) ?></p>
-                            <span><?= number_format($libro['precio'], 2) ?> €</span>
+                        <div class="carousel-slide">
+                            <?php foreach ($libros_destacados as $libro): ?>
+                                <article class="carousel-item">
+                                    <img
+                                        src="/VIEW/img/libros/<?= htmlspecialchars($libro['imagen'] ?? 'default-book.png') ?>"
+                                        alt="<?= htmlspecialchars($libro['titulo']) ?>"
+                                        class="book-cover">
 
-                            <a href="/book/<?= $libro['book_id'] ?>" class="btn btn-primary">
-                                Ver detalle
-                            </a>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
+                                    <h3 class="book-title">
+                                        <?= htmlspecialchars($libro['titulo']) ?>
+                                    </h3>
+
+                                    <p class="book-author">
+                                        <?= htmlspecialchars($libro['autor']) ?>
+                                    </p>
+
+                                    <span class="book-price">
+                                        <?= number_format($libro['precio'], 2) ?> €
+                                    </span>
+
+                                    <a href="/book/<?= $libro['book_id'] ?>" class="btn btn-primary">
+                                        Ver detalle
+                                    </a>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </section>
+
 
             </div>
         </section>
