@@ -52,26 +52,23 @@ try {
                         <h2 class="carousel-title">Libros destacados</h2>
 
                         <div class="carousel-slide">
-                            <?php foreach ($libros_destacados as $libro): ?>
+                            <?php
+                            $count = 0;
+                            foreach ($libros_destacados as $libro):
+                                if ($count >= 8) break;
+                                $count++;
+                            ?>
                                 <article class="carousel-item">
                                     <img
                                         src="/VIEW/img/libros/<?= htmlspecialchars($libro['imagen'] ?? 'default-book.png') ?>"
                                         alt="<?= htmlspecialchars($libro['titulo']) ?>"
                                         class="book-cover">
 
-                                    <h3 class="book-title">
-                                        <?= htmlspecialchars($libro['titulo']) ?>
-                                    </h3>
+                                    <h3 class="book-title"><?= htmlspecialchars($libro['titulo']) ?></h3>
+                                    <p class="book-author"><?= htmlspecialchars($libro['autor']) ?></p>
+                                    <span class="book-price"><?= number_format($libro['precio'], 2) ?> €</span>
 
-                                    <p class="book-author">
-                                        <?= htmlspecialchars($libro['autor']) ?>
-                                    </p>
-
-                                    <span class="book-price">
-                                        <?= number_format($libro['precio'], 2) ?> €
-                                    </span>
-
-                                    <a href="/book/<?= $libro['book_id'] ?>" class="btn btn-primary">
+                                    <a href="/book/<?= (int)$libro['book_id'] ?>" class="btn btn-primary">
                                         Ver detalle
                                     </a>
                                 </article>
@@ -79,6 +76,7 @@ try {
                         </div>
                     </div>
                 </section>
+
 
 
             </div>
