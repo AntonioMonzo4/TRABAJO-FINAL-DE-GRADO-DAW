@@ -46,95 +46,77 @@ $carritoCount = $_SESSION['carrito_count'] ?? 0;
     <?php require_once __DIR__ . '/partials/flash.php'; ?>
 
     <header class="header">
-        <!-- HEADER SUPERIOR -->
-        <div class="highHeader">
-            <!-- LOGO -->
-            <div class="logoHeader">
-                <a href="/home">
-                    <img src="/VIEW/img/logo_principal.png" alt="Los Círculos de Atenea">
-                </a>
-            </div>
-
-            <!-- NAVEGACIÓN PRINCIPAL -->
-            <nav>
-                <ul class="navbar-enlaces">
-                    <li><a href="/home">Inicio</a></li>
-                    <li><a href="/about">Sobre nosotros</a></li>
-                    <li><a href="/books">Libros</a></li>
-                    <li><a href="/tienda">Tienda</a></li>
-
-
-
-                </ul>
-            </nav>
-
-            <?php if ($user && ($user['rol'] ?? '') === 'admin'):  ?>
-                <a href="/admin">Admin</a>
-            <?php endif; ?>
-
-
-            <!-- ACCIONES DE USUARIO (login / registro / menú usuario) -->
-            <div class="user-actions">
-                <?php if ($usuario): ?>
-                    <!-- Usuario logueado: menú desplegable -->
-                    <div class="user-dropdown">
-                        <button type="button" class="user-welcome">
-                            <i class="fa-regular fa-user"></i>
-                            <span>Hola, <?= htmlspecialchars($usuario['nombre']) ?></span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-                        <ul class="user-menu">
-                            <li>
-                                <a href="/perfil">
-                                    <i class="fa-regular fa-id-card"></i>
-                                    Mi perfil
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/mis-pedidos">Mis pedidos</a>
-
-                            </li>
-                            <li>
-                                <a href="/logout">
-                                    <i class="fa-solid fa-right-from-bracket"></i>
-                                    Cerrar sesión
-                                </a>
-                            </li>
-                        </ul>
-
-                    </div>
-                <?php else: ?>
-                    <!-- Usuario no logueado: botones de login / registro -->
-                    <a href="/login" class="login-btn">
-                        <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
-                    </a>
-                    <a href="/register" class="register-btn">
-                        <i class="fa-regular fa-id-card"></i> Registrarse
-                    </a>
-                <?php endif; ?>
-            </div>
+    <!-- HEADER SUPERIOR -->
+    <div class="highHeader">
+        <!-- LOGO -->
+        <div class="logoHeader">
+            <a href="/home">
+                <img src="/VIEW/img/logo_principal.png" alt="Los Círculos de Atenea">
+            </a>
         </div>
 
-        <!-- HEADER INFERIOR -->
-        <div class="lowHeader">
-            <!-- BUSCADOR -->
-            <div class="buscador">
-                <form action="/buscar" method="get">
-                    <input type="text" name="q" placeholder="Busca libros, autores, géneros..." />
-                    <button type="submit">
-                        <i class="fa-solid fa-magnifying-glass"></i> Buscar
+        <!-- BOTÓN HAMBURGUESA -->
+        <button class="nav-toggle" type="button" aria-controls="mainNav" aria-expanded="false">
+            <i class="fa-solid fa-bars"></i>
+            <span class="sr-only">Abrir menú</span>
+        </button>
+
+        <!-- NAVEGACIÓN PRINCIPAL -->
+        <nav id="mainNav" class="nav-main" aria-label="Navegación principal">
+            <ul class="navbar-enlaces">
+                <li><a href="/home">Inicio</a></li>
+                <li><a href="/about">Sobre nosotros</a></li>
+                <li><a href="/books">Libros</a></li>
+                <li><a href="/tienda">Tienda</a></li>
+                <!-- El JS insertará aquí: Admin / Login / Perfil / Carrito en móvil -->
+            </ul>
+        </nav>
+
+        <!-- ADMIN (desktop) -->
+        <?php if ($user && ($user['rol'] ?? '') === 'admin'): ?>
+            <a href="/admin" class="admin-link">Admin</a>
+        <?php endif; ?>
+
+        <!-- ACCIONES DE USUARIO (desktop) -->
+        <div class="user-actions">
+            <?php if ($usuario): ?>
+                <div class="user-dropdown">
+                    <button type="button" class="user-welcome">
+                        <i class="fa-regular fa-user"></i>
+                        <span>Hola, <?= htmlspecialchars($usuario['nombre']) ?></span>
+                        <i class="fa-solid fa-chevron-down"></i>
                     </button>
-                </form>
-            </div>
-
-            <!-- CARRITO -->
-            <div class="carrito">
-                <a href="/carrito" title="Ver carrito">
-                    <i class="fa-solid fa-cart-shopping"></i>
+                    <ul class="user-menu">
+                        <li><a href="/perfil"><i class="fa-regular fa-id-card"></i> Mi perfil</a></li>
+                        <li><a href="/mis-pedidos">Mis pedidos</a></li>
+                        <li><a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            <?php else: ?>
+                <a href="/login" class="login-btn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
                 </a>
-                <?php if ($carritoCount > 0): ?>
-                    <span class="carrito-count"><?= (int)$carritoCount ?></span>
-                <?php endif; ?>
-            </div>
+                <a href="/register" class="register-btn">
+                    <i class="fa-regular fa-id-card"></i> Registrarse
+                </a>
+            <?php endif; ?>
         </div>
-    </header>
+    </div>
+
+    <!-- HEADER INFERIOR -->
+    <div class="lowHeader">
+        <div class="buscador">
+            <p>Bienvenido a Los círculos de Atena tu espacio seguro para la lectura y el conocimiento</p>
+        </div>
+
+        <!-- CARRITO (desktop) -->
+        <div class="carrito">
+            <a href="/carrito" title="Ver carrito" class="carrito-link">
+                <i class="fa-solid fa-cart-shopping"></i>
+            </a>
+            <?php if ($carritoCount > 0): ?>
+                <span class="carrito-count"><?= (int)$carritoCount ?></span>
+            <?php endif; ?>
+        </div>
+    </div>
+</header>

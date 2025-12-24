@@ -46,6 +46,8 @@
     </div>
 </footer>
 
+<script src="/VIEW/js/menu_movil.js" defer></script>
+
 </body>
 
 </html>
