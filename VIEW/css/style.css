@@ -4925,18 +4925,22 @@ ul {
 
 
 
-
 /* =======================
-   HOME - DESTACADOS (SIN CARRUSEL)
+   HOME - DESTACADOS (GRID ESTÁTICO, SIN CARRUSEL)
+   Desktop: 4 columnas (2 filas si hay 8 libros)
+   Tablet:  2 columnas
+   Móvil:   1 columna
 ======================= */
 
 .destacados-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
+    column-gap: 18px;   /* separación horizontal */
+    row-gap: 22px;      /* separación entre filas (no mucha, pero suficiente) */
     margin-top: var(--espacio-lg);
 }
 
+/* Tarjeta */
 .destacado-card {
     background: var(--color-blanco);
     border-radius: var(--radio-borde);
@@ -4954,6 +4958,7 @@ ul {
     box-shadow: var(--sombra-media);
 }
 
+/* Imagen (desktop más grande) */
 .destacado-card img {
     width: 100%;
     height: 240px;
@@ -4962,8 +4967,9 @@ ul {
     display: block;
 }
 
+/* Texto */
 .destacado-card h3 {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     color: var(--color-primario);
     margin: 6px 0 0;
     line-height: 1.25;
@@ -4981,23 +4987,32 @@ ul {
     font-size: 1.05rem;
 }
 
-/* TABLET */
+/* ===== TABLET (2 columnas + imagen más pequeña) ===== */
 @media (max-width: 1024px) {
     .destacados-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
+        column-gap: 16px;
+        row-gap: 18px;
+    }
+
+    .destacado-card {
+        padding: 12px;
     }
 
     .destacado-card img {
-        height: 220px;
+        height: 190px;
+    }
+
+    .destacado-card h3 {
+        font-size: 1rem;
     }
 }
 
-/* MÓVIL */
+/* ===== MÓVIL (1 columna + imagen más pequeña) ===== */
 @media (max-width: 768px) {
     .destacados-grid {
         grid-template-columns: 1fr;
-        gap: 14px;
+        row-gap: 14px;
     }
 
     .destacado-card {
@@ -5005,7 +5020,7 @@ ul {
     }
 
     .destacado-card img {
-        height: 200px;
+        height: 170px;
     }
 
     .destacado-card .btn {
