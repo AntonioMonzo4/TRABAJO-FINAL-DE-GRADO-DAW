@@ -31,7 +31,7 @@ try {
 <main class="main">
 
     <!-- HERO -->
-    <section class="hero">
+    <section class="hero hero-home">
         <div class="container hero-content">
             <h1>Los Círculos de Atenea</h1>
             <p>Descubre un mundo de conocimiento y lectura.</p>

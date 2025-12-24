@@ -4965,3 +4965,43 @@ ul {
         flex: 0 0 100% !important;
     }
 }
+
+
+
+
+/* HERO SOLO HOME */
+.hero.hero-home {
+    position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    padding: var(--espacio-xl) var(--espacio-lg);
+
+    background-image: url("/VIEW/img/fondo.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.hero.hero-home::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1;
+}
+
+.hero.hero-home .hero-content {
+    position: relative;
+    z-index: 2;
+    color: var(--color-blanco);
+    max-width: 600px;
+}
+
+@media (max-width:768px) {
+    .hero.hero-home {
+        min-height: 60vh;
+        padding: var(--espacio-lg);
+        background-position: center top;
+    }
+}
