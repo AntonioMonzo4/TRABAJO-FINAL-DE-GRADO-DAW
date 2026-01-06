@@ -1,18 +1,18 @@
 // VIEW/js/detalle_producto.js - Funcionalidades para la página de detalle
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Tabs functionality
     const tabHeaders = document.querySelectorAll('.tab-header');
     const tabContents = document.querySelectorAll('.tab-content');
 
     tabHeaders.forEach(header => {
-        header.addEventListener('click', function() {
+        header.addEventListener('click', function () {
             const tabId = this.getAttribute('data-tab');
-            
+
             // Remove active class from all headers and contents
             tabHeaders.forEach(h => h.classList.remove('active'));
             tabContents.forEach(c => c.classList.remove('active'));
-            
+
             // Add active class to current header and content
             this.classList.add('active');
             document.getElementById(tabId).classList.add('active');
@@ -25,14 +25,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnSumar = document.querySelector('.btn-sumar');
 
     if (btnRestar && btnSumar && cantidadInput) {
-        btnRestar.addEventListener('click', function() {
+        btnRestar.addEventListener('click', function () {
             let currentValue = parseInt(cantidadInput.value);
             if (currentValue > 1) {
                 cantidadInput.value = currentValue - 1;
             }
         });
 
-        btnSumar.addEventListener('click', function() {
+        btnSumar.addEventListener('click', function () {
             let currentValue = parseInt(cantidadInput.value);
             const maxStock = parseInt(cantidadInput.getAttribute('max'));
             if (currentValue < maxStock) {
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        cantidadInput.addEventListener('change', function() {
+        cantidadInput.addEventListener('change', function () {
             let value = parseInt(this.value);
             const maxStock = parseInt(this.getAttribute('max'));
             const minStock = parseInt(this.getAttribute('min'));
@@ -53,6 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+
+    /*
     // Add to cart functionality with quantity
     const btnAnadirCarrito = document.querySelector('.btn-anadir-carrito-detalle');
     
@@ -113,20 +115,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    */
+
     // Image gallery functionality (for future implementation)
     const miniaturas = document.querySelectorAll('.miniatura');
     const imagenPrincipal = document.getElementById('imagen-principal');
 
     miniaturas.forEach(miniatura => {
-        miniatura.addEventListener('click', function() {
+        miniatura.addEventListener('click', function () {
             const nuevaImagen = this.getAttribute('data-imagen');
-            
+
             // Remove active class from all thumbnails
             miniaturas.forEach(m => m.classList.remove('active'));
-            
+
             // Add active class to clicked thumbnail
             this.classList.add('active');
-            
+
             // Update main image
             imagenPrincipal.src = nuevaImagen;
         });
@@ -134,9 +138,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Buy now button functionality
     const btnComprarAhora = document.querySelector('.btn-comprar-ahora');
-    
+
     if (btnComprarAhora) {
-        btnComprarAhora.addEventListener('click', function() {
+        btnComprarAhora.addEventListener('click', function () {
             if (this.classList.contains('disabled')) return;
 
             const cantidad = parseInt(cantidadInput.value);
@@ -151,12 +155,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof window.carritoManager !== 'undefined') {
                 // Clear cart and add only this product
                 window.carritoManager.vaciarCarrito();
-                
+
                 // Add the product multiple times based on quantity
                 for (let i = 0; i < cantidad; i++) {
                     window.carritoManager.agregarAlCarrito(producto);
                 }
-                
+
                 // Redirect to checkout
                 setTimeout(() => {
                     window.location.href = '../index.php?pagina=checkout';

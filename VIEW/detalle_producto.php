@@ -141,7 +141,7 @@ try {
                         </div>
 
                         <div class="botones-accion">
-                            <button class="btn btn-primary btn-anadir-carrito-detalle 
+                            <button class="btn btn-primary btn-anadir-carrito-detalle add-to-cart
                                         <?php echo $libro['stock'] <= 0 ? 'disabled' : ''; ?>"
                                     data-book-id="<?php echo $libro['book_id']; ?>"
                                     data-book-titulo="<?php echo htmlspecialchars($libro['titulo']); ?>"

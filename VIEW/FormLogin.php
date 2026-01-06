@@ -15,7 +15,7 @@ require_once __DIR__ . '/partials/breadcrumb.php';
 
 <h1>Iniciar sesión</h1>
 
-<form method="post" action="/login" class="form">
+<form method="POST" action="/login" class="form">
 
     <label>Email</label>
     <input type="email" name="email" required>

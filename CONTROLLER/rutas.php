@@ -132,7 +132,7 @@ switch ($ruta) {
 
     case 'register':
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
-            cargarVista('FormRegistro.php');
+            cargarVista('FormularioRegistro.php');
         } else {
             require_once __DIR__ . '/AuthController.php';
             AuthController::register();

@@ -19,26 +19,31 @@ class CarritoManager {
     }
 
     // Actualizar contador del carrito en el header
+
     actualizarContadorCarrito() {
         const contador = document.querySelector('.carrito-count');
-        if (contador) {
-            const totalItems = this.carrito.reduce((total, item) => total + item.cantidad, 0);
-            contador.textContent = totalItems;
-            contador.style.display = totalItems > 0 ? 'flex' : 'none';
-        }
+        if (!contador) return;
+
+        const totalItems = this.carrito.reduce(
+            (total, item) => total + item.cantidad,
+            0
+        );
+
+        contador.textContent = totalItems;
+        contador.style.display = totalItems > 0 ? 'flex' : 'none';
     }
 
     // Añadir producto al carrito
     agregarAlCarrito(producto) {
-        const productoExistente = this.carrito.find(item => 
-            item.id === producto.id && item.tipo === producto.tipo
+        console.log('Producto añadido:', producto);
+
+        const productoExistente = this.carrito.find(
+            item => item.id === producto.id && item.tipo === producto.tipo
         );
 
         if (productoExistente) {
-            // Si ya existe, aumentar cantidad
             productoExistente.cantidad += 1;
         } else {
-            // Si no existe, añadir nuevo producto
             this.carrito.push({
                 id: producto.id,
                 tipo: producto.tipo,
@@ -56,7 +61,7 @@ class CarritoManager {
 
     // Eliminar producto del carrito
     eliminarDelCarrito(id, tipo) {
-        this.carrito = this.carrito.filter(item => 
+        this.carrito = this.carrito.filter(item =>
             !(item.id === id && item.tipo === tipo)
         );
         this.guardarCarritoLocalStorage();
@@ -65,7 +70,7 @@ class CarritoManager {
 
     // Actualizar cantidad de un producto
     actualizarCantidad(id, tipo, nuevaCantidad) {
-        const producto = this.carrito.find(item => 
+        const producto = this.carrito.find(item =>
             item.id === id && item.tipo === tipo
         );
 
@@ -79,21 +84,21 @@ class CarritoManager {
             }
         }
     }
-
-    // Obtener total del carrito
-    obtenerTotalCarrito() {
-        return this.carrito.reduce((total, item) => 
-            total + (item.precio * item.cantidad), 0
-        );
-    }
-
     // Vaciar carrito
     vaciarCarrito() {
         this.carrito = [];
         this.guardarCarritoLocalStorage();
         this.actualizarContadorCarrito();
-        this.mostrarNotificacion('Carrito vaciado');
     }
+
+    // Obtener total del carrito
+    obtenerTotalCarrito() {
+        return this.carrito.reduce((total, item) =>
+            total + (item.precio * item.cantidad), 0
+        );
+    }
+
+    
 
     // Mostrar notificación
     mostrarNotificacion(mensaje) {
@@ -163,7 +168,7 @@ class CarritoManager {
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('add-to-cart')) {
                 e.preventDefault();
-                
+
                 const button = e.target;
                 const producto = {
                     id: button.getAttribute('data-book-id'),
@@ -180,18 +185,18 @@ class CarritoManager {
         // También puedes añadir para otros tipos de productos en el futuro
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('add-other-to-cart')) {
-              e.preventDefault();
+                e.preventDefault();
                 const button = e.target;
-                 const producto = {
-                   id: button.getAttribute('data-product-id'),
-                  tipo: 'other',
-                  nombre: button.getAttribute('data-product-nombre'),
-                  precio: parseFloat(button.getAttribute('data-product-precio')),
-                 imagen: button.getAttribute('data-product-imagen')
-              };
-               this.agregarAlCarrito(producto);
+                const producto = {
+                    id: button.getAttribute('data-product-id'),
+                    tipo: 'other',
+                    nombre: button.getAttribute('data-product-nombre'),
+                    precio: parseFloat(button.getAttribute('data-product-precio')),
+                    imagen: button.getAttribute('data-product-imagen')
+                };
+                this.agregarAlCarrito(producto);
             }
-         });
+        });
     }
 
     // Obtener todos los items del carrito (para la página del carrito)
@@ -201,7 +206,7 @@ class CarritoManager {
 }
 
 // Inicializar el carrito cuando se carga la página
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     window.carritoManager = new CarritoManager();
 });
 
