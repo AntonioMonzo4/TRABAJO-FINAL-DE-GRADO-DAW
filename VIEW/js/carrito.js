@@ -19,7 +19,6 @@ class CarritoManager {
     }
 
     // Actualizar contador del carrito en el header
-
     actualizarContadorCarrito() {
         const contador = document.querySelector('.carrito-count');
         if (!contador) return;
@@ -34,23 +33,29 @@ class CarritoManager {
     }
 
     // Añadir producto al carrito
-    agregarAlCarrito(producto) {
+    // - producto: { id, tipo, nombre, precio, imagen, autor? }
+    // - cantidad: número de unidades a añadir (por defecto 1)
+    agregarAlCarrito(producto, cantidad = 1) {
         console.log('Producto añadido:', producto);
+
+        const cantidadAAgregar = parseInt(String(cantidad ?? '1'), 10);
+        const qty = Number.isFinite(cantidadAAgregar) && cantidadAAgregar > 0 ? cantidadAAgregar : 1;
 
         const productoExistente = this.carrito.find(
             item => item.id === producto.id && item.tipo === producto.tipo
         );
 
         if (productoExistente) {
-            productoExistente.cantidad += 1;
+            productoExistente.cantidad += qty;
         } else {
             this.carrito.push({
                 id: producto.id,
                 tipo: producto.tipo,
                 nombre: producto.nombre,
+                autor: producto.autor,
                 precio: producto.precio,
                 imagen: producto.imagen,
-                cantidad: 1
+                cantidad: qty
             });
         }
 
@@ -84,6 +89,7 @@ class CarritoManager {
             }
         }
     }
+
     // Vaciar carrito
     vaciarCarrito() {
         this.carrito = [];
@@ -98,11 +104,8 @@ class CarritoManager {
         );
     }
 
-    
-
     // Mostrar notificación
     mostrarNotificacion(mensaje) {
-        // Crear elemento de notificación
         const notificacion = document.createElement('div');
         notificacion.className = 'notificacion-carrito';
         notificacion.innerHTML = `
@@ -112,7 +115,6 @@ class CarritoManager {
             </div>
         `;
 
-        // Añadir estilos
         notificacion.style.cssText = `
             position: fixed;
             top: 20px;
@@ -146,15 +148,12 @@ class CarritoManager {
             justify-content: center;
         `;
 
-        // Añadir al DOM
         document.body.appendChild(notificacion);
 
-        // Evento para cerrar notificación
         notificacion.querySelector('.notificacion-cerrar').addEventListener('click', () => {
             notificacion.remove();
         });
 
-        // Auto-eliminar después de 3 segundos
         setTimeout(() => {
             if (notificacion.parentElement) {
                 notificacion.remove();
@@ -164,38 +163,41 @@ class CarritoManager {
 
     // Inicializar event listeners
     inicializarEventListeners() {
-        // Delegación de eventos para botones "Añadir al carrito"
+        // Delegación robusta: funciona aunque se pinche en un <i>/<span> dentro del botón.
+        // Además, evita submits accidentales cuando el botón está dentro de un <form>.
         document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-to-cart')) {
-                e.preventDefault();
+            const btnBook = e.target.closest('.add-to-cart');
+            const btnOther = e.target.closest('.add-other-to-cart');
+            const button = btnBook || btnOther;
+            if (!button) return;
 
-                const button = e.target;
+            e.preventDefault();
+
+            // Si hay un input de cantidad cerca (por ejemplo en la ficha), lo usamos.
+            const cantidadInput = button.closest('form, .product, .libro-info, .card, article')?.querySelector('input[name="cantidad"]');
+            const cantidad = cantidadInput ? parseInt(cantidadInput.value, 10) : 1;
+
+            if (btnBook) {
                 const producto = {
                     id: button.getAttribute('data-book-id'),
                     tipo: 'book',
                     nombre: button.getAttribute('data-book-titulo'),
+                    autor: button.getAttribute('data-book-autor') || undefined,
                     precio: parseFloat(button.getAttribute('data-book-precio')),
                     imagen: button.getAttribute('data-book-imagen')
                 };
-
-                this.agregarAlCarrito(producto);
+                this.agregarAlCarrito(producto, cantidad);
+                return;
             }
-        });
 
-        // También puedes añadir para otros tipos de productos en el futuro
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('add-other-to-cart')) {
-                e.preventDefault();
-                const button = e.target;
-                const producto = {
-                    id: button.getAttribute('data-product-id'),
-                    tipo: 'other',
-                    nombre: button.getAttribute('data-product-nombre'),
-                    precio: parseFloat(button.getAttribute('data-product-precio')),
-                    imagen: button.getAttribute('data-product-imagen')
-                };
-                this.agregarAlCarrito(producto);
-            }
+            const producto = {
+                id: button.getAttribute('data-product-id'),
+                tipo: 'other',
+                nombre: button.getAttribute('data-product-nombre'),
+                precio: parseFloat(button.getAttribute('data-product-precio')),
+                imagen: button.getAttribute('data-product-imagen')
+            };
+            this.agregarAlCarrito(producto, cantidad);
         });
     }
 
@@ -228,7 +230,6 @@ const carritoStyles = `
 }
 `;
 
-// Insertar estilos en el head
 if (!document.querySelector('#carrito-styles')) {
     const styleElement = document.createElement('style');
     styleElement.id = 'carrito-styles';

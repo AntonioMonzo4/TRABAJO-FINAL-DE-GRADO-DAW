@@ -57,7 +57,8 @@ class CarritoPagina {
         
         // Imagen
         const img = itemElement.querySelector('.item-imagen img');
-        img.src = `img/libros/${item.imagen}`;
+        const baseImg = item.tipo === 'other' ? '/VIEW/img/productos/' : '/VIEW/img/libros/';
+        img.src = `${baseImg}${item.imagen}`;
         img.alt = item.nombre;
         img.onerror = function() {
             this.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
@@ -65,8 +66,16 @@ class CarritoPagina {
         
         // Información
         itemElement.querySelector('.item-titulo').textContent = item.nombre;
-        itemElement.querySelector('.item-autor').textContent = `por ${item.autor || 'Autor desconocido'}`;
-        itemElement.querySelector('.item-precio-unitario').textContent = `$${item.precio.toFixed(2)} c/u`;
+        const autorEl = itemElement.querySelector('.item-autor');
+        if (item.tipo === 'book') {
+            autorEl.textContent = `por ${item.autor || 'Autor desconocido'}`;
+            autorEl.style.display = '';
+        } else {
+            autorEl.textContent = '';
+            autorEl.style.display = 'none';
+        }
+
+        itemElement.querySelector('.item-precio-unitario').textContent = `${item.precio.toFixed(2)} € c/u`;
         
         // Cantidad
         const inputCantidad = itemElement.querySelector('.input-cantidad');
@@ -75,7 +84,7 @@ class CarritoPagina {
         
         // Total
         const total = item.precio * item.cantidad;
-        itemElement.querySelector('.total-precio').textContent = `$${total.toFixed(2)}`;
+        itemElement.querySelector('.total-precio').textContent = `${total.toFixed(2)} €`;
         
         // Event listeners para controles de cantidad
         const btnRestar = itemElement.querySelector('.btn-restar');
@@ -139,8 +148,8 @@ class CarritoPagina {
         const items = this.carritoManager.obtenerItemsCarrito();
         const subtotal = this.carritoManager.obtenerTotalCarrito();
         
-        // Calcular envío (gratis para compras > $50)
-        let envio = 5.99; // Costo base de envío
+        // Calcular envío (gratis para compras > 50€)
+        let envio = 5.99;
         if (subtotal >= 50 || subtotal === 0) {
             envio = 0;
         }
@@ -158,26 +167,25 @@ class CarritoPagina {
             total = subtotal + envio - descuento;
         }
         
-        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
-        document.getElementById('envio-costo').textContent = envio === 0 ? 'Gratis' : `$${envio.toFixed(2)}`;
+        document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)} €`;
+        document.getElementById('envio-costo').textContent = envio === 0 ? 'Gratis' : `${envio.toFixed(2)} €`;
         
         const descuentoLinea = document.getElementById('descuento-linea');
         const descuentoMonto = document.getElementById('descuento-monto');
         
         if (descuento > 0) {
             descuentoLinea.style.display = 'flex';
-            descuentoMonto.textContent = `-$${descuento.toFixed(2)}`;
+            descuentoMonto.textContent = `-${descuento.toFixed(2)} €`;
         } else {
             descuentoLinea.style.display = 'none';
         }
         
-        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+        document.getElementById('total').textContent = `${total.toFixed(2)} €`;
     }
 
     // Obtener descuento aplicado
     obtenerDescuentoAplicado() {
-        // En una implementación real, esto vendría de un código de descuento
-        // Por ahora, simulamos un descuento del 10% para compras > $100
+        // Simulación de descuento del 10% para compras > 100€
         const subtotal = this.carritoManager.obtenerTotalCarrito();
         return subtotal > 100 ? subtotal * 0.1 : 0;
     }
@@ -203,37 +211,11 @@ class CarritoPagina {
     // Cargar productos recomendados
     async cargarProductosRecomendados() {
         try {
-            // En una implementación real, esto haría una petición al servidor
-            // Por ahora, simulamos productos recomendados
             const productosRecomendados = [
-                {
-                    id: 1,
-                    titulo: 'El Resplandor',
-                    autor: 'Stephen King',
-                    precio: 15.99,
-                    imagen: 'el-resplandor.png'
-                },
-                {
-                    id: 2,
-                    titulo: 'Cien años de soledad',
-                    autor: 'Gabriel García Márquez',
-                    precio: 19.99,
-                    imagen: 'cien-anos-soledad.png'
-                },
-                {
-                    id: 3,
-                    titulo: '1984',
-                    autor: 'George Orwell',
-                    precio: 16.99,
-                    imagen: '1984.png'
-                },
-                {
-                    id: 4,
-                    titulo: 'Orgullo y prejuicio',
-                    autor: 'Jane Austen',
-                    precio: 12.99,
-                    imagen: 'orgullo-prejuicio.png'
-                }
+                { id: 1, titulo: 'El Resplandor', autor: 'Stephen King', precio: 15.99, imagen: 'el-resplandor.png' },
+                { id: 2, titulo: 'Cien años de soledad', autor: 'Gabriel García Márquez', precio: 19.99, imagen: 'cien-anos-de-soledad.png' },
+                { id: 3, titulo: '1984', autor: 'George Orwell', precio: 12.99, imagen: '1984.png' },
+                { id: 4, titulo: 'Don Quijote', autor: 'Miguel de Cervantes', precio: 22.50, imagen: 'don-quijote.png' }
             ];
 
             this.renderProductosRecomendados(productosRecomendados);
@@ -245,70 +227,64 @@ class CarritoPagina {
     // Renderizar productos recomendados
     renderProductosRecomendados(productos) {
         const gridRecomendados = document.getElementById('grid-recomendados');
+        if (!gridRecomendados) return;
+
         gridRecomendados.innerHTML = '';
 
         productos.forEach(producto => {
             const template = document.getElementById('template-producto-recomendado');
             const clone = template.content.cloneNode(true);
             const productoElement = clone.querySelector('.producto-recomendado');
-            
-            // Enlace
-            const link = productoElement.querySelector('.producto-link');
-            link.href = `../index.php?pagina=detalle_producto&id=${producto.id}`;
-            
-            // Imagen
-            const img = productoElement.querySelector('.producto-imagen img');
-            img.src = `img/libros/${producto.imagen}`;
+
+            const img = productoElement.querySelector('img');
+            img.src = `/VIEW/img/libros/${producto.imagen}`;
             img.alt = producto.titulo;
             img.onerror = function() {
                 this.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
             };
-            
-            // Información
-            productoElement.querySelector('h3').textContent = producto.titulo;
+
+            productoElement.querySelector('.producto-titulo').textContent = producto.titulo;
             productoElement.querySelector('.producto-autor').textContent = producto.autor;
-            productoElement.querySelector('.producto-precio').textContent = `$${producto.precio.toFixed(2)}`;
-            
-            // Botón añadir al carrito
+            productoElement.querySelector('.producto-precio strong').textContent = `${producto.precio.toFixed(2)} €`;
+
             const btnAnadir = productoElement.querySelector('.btn-anadir-carrito-recomendado');
             btnAnadir.setAttribute('data-book-id', producto.id);
             btnAnadir.setAttribute('data-book-titulo', producto.titulo);
             btnAnadir.setAttribute('data-book-precio', producto.precio);
             btnAnadir.setAttribute('data-book-imagen', producto.imagen);
-            
+
             btnAnadir.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                
+
                 const productoData = {
                     id: producto.id,
                     tipo: 'book',
                     nombre: producto.titulo,
+                    autor: producto.autor,
                     precio: producto.precio,
                     imagen: producto.imagen
                 };
-                
+
                 this.carritoManager.agregarAlCarrito(productoData);
                 this.renderCarrito();
             });
-            
+
             gridRecomendados.appendChild(productoElement);
         });
     }
 
     // Configurar event listeners
     setupEventListeners() {
-        // Código de descuento
         const btnAplicarDescuento = document.getElementById('aplicar-descuento');
         const inputDescuento = document.getElementById('codigo-descuento');
-        const mensajeDescuento = document.getElementById('descuento-mensaje');
-        
+
         if (btnAplicarDescuento) {
             btnAplicarDescuento.addEventListener('click', () => {
                 const codigo = inputDescuento.value.trim();
                 this.aplicarDescuento(codigo);
             });
-            
+
             inputDescuento.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     this.aplicarDescuento(inputDescuento.value.trim());
@@ -319,25 +295,21 @@ class CarritoPagina {
 
     // Aplicar código de descuento
     aplicarDescuento(codigo) {
-        const mensajeDescuento = document.getElementById('descuento-mensaje');
-        
-        // Simulación de códigos de descuento
         const descuentos = {
-            'BIENVENIDA10': 0.1,  // 10% de descuento
-            'LIBRO15': 0.15,      // 15% de descuento
-            'ENVIOGRATIS': 5.99   // Envío gratis (equivalente a $5.99)
+            'BIENVENIDA10': 0.1,
+            'LIBRO15': 0.15,
+            'ENVIOGRATIS': 5.99
         };
-        
+
         if (!codigo) {
             this.mostrarMensajeDescuento('Por favor, ingresa un código de descuento', 'error');
             return;
         }
-        
+
         const descuento = descuentos[codigo.toUpperCase()];
-        
+
         if (descuento) {
             this.mostrarMensajeDescuento('¡Código de descuento aplicado correctamente!', 'success');
-            // En una implementación real, guardaríamos el descuento aplicado
             setTimeout(() => {
                 this.actualizarResumenTotal();
             }, 500);
@@ -348,10 +320,12 @@ class CarritoPagina {
 
     mostrarMensajeDescuento(mensaje, tipo) {
         const mensajeDescuento = document.getElementById('descuento-mensaje');
+        if (!mensajeDescuento) return;
+
         mensajeDescuento.textContent = mensaje;
         mensajeDescuento.className = 'descuento-mensaje';
         mensajeDescuento.classList.add(tipo);
-        
+
         setTimeout(() => {
             mensajeDescuento.textContent = '';
             mensajeDescuento.className = 'descuento-mensaje';
@@ -360,19 +334,17 @@ class CarritoPagina {
 
     // Mostrar notificación
     mostrarNotificacion(mensaje) {
-        if (typeof this.carritoManager.mostrarNotificacion === 'function') {
-            this.carritoManager.mostrarNotificacion(mensaje);
+        if (window.carritoManager && typeof window.carritoManager.mostrarNotificacion === 'function') {
+            window.carritoManager.mostrarNotificacion(mensaje);
         }
     }
 }
 
-// Inicializar cuando el DOM esté listo
+// Inicializar página del carrito
 document.addEventListener('DOMContentLoaded', function() {
-    // Esperar a que el CarritoManager esté disponible
     if (typeof window.carritoManager !== 'undefined') {
         window.carritoPagina = new CarritoPagina();
     } else {
-        // Si el CarritoManager no está disponible, esperar un poco
         setTimeout(() => {
             if (typeof window.carritoManager !== 'undefined') {
                 window.carritoPagina = new CarritoPagina();

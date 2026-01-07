@@ -47,6 +47,8 @@
 </footer>
 
 <script src="/VIEW/js/menu_movil.js" defer></script>
+<script src="/VIEW/js/carrito.js" defer></script>
+<script src="/VIEW/js/detalle_producto.js" defer></script>
 
 </body>
 

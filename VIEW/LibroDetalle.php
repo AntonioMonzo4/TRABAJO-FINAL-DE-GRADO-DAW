@@ -55,16 +55,25 @@ require __DIR__ . '/partials/breadcrumb.php';
                 </p>
 
                 <?php if ((int)$libro['stock'] > 0): ?>
-                    <form method="post" action="/carrito/add">
-                        <input type="hidden" name="product_type" value="book">
-                        <input type="hidden" name="product_id" value="<?= $libro['book_id'] ?>">
-                        <input type="hidden" name="titulo" value="<?= htmlspecialchars($libro['titulo']) ?>">
-                        <input type="hidden" name="precio" value="<?= $libro['precio'] ?>">
-                        <input type="hidden" name="imagen" value="<?= $libro['imagen'] ?>">
-                        <input type="number" name="cantidad" value="1" min="1">
-                        <button class="btn btn-primary">Añadir al carrito</button>
-                    </form>
+                    <!-- Carrito en localStorage (sin POST al servidor) -->
+                    <div class="acciones-carrito">
+                        <label style="display:inline-flex;align-items:center;gap:8px;">
+                            Cantidad
+                            <input type="number" name="cantidad" value="1" min="1" max="99" style="width:80px;">
+                        </label>
 
+                        <button
+                            type="button"
+                            class="btn btn-primary add-to-cart"
+                            data-book-id="<?= (int)$libro['book_id'] ?>"
+                            data-book-titulo="<?= htmlspecialchars($libro['titulo']) ?>"
+                            data-book-autor="<?= htmlspecialchars($libro['autor'] ?? '') ?>"
+                            data-book-precio="<?= (float)$libro['precio'] ?>"
+                            data-book-imagen="<?= htmlspecialchars($libro['imagen'] ?? '') ?>"
+                        >
+                            Añadir al carrito
+                        </button>
+                    </div>
                 <?php endif; ?>
             </div>
 

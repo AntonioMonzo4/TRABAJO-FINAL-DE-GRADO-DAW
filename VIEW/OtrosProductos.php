@@ -26,6 +26,7 @@ require __DIR__ . '/partials/breadcrumb.php';
         <?php else: ?>
             <div class="grid-products">
                 <?php foreach ($productos as $p): ?>
+                    <?php $pid = (int)($p['product_id'] ?? $p['id'] ?? $p['other_product_id'] ?? 0); ?>
                     <article class="product">
                         <img
                             src="/VIEW/img/productos/<?= htmlspecialchars($p['imagen'] ?? 'default-product.png') ?>"
@@ -39,7 +40,17 @@ require __DIR__ . '/partials/breadcrumb.php';
                                 <?= ((int)($p['stock'] ?? 0) > 0) ? 'En stock' : 'Sin stock' ?>
                             </span>
                         </div>
-                        <button class="btn btn-secondary" type="button">Añadir al carrito</button>
+
+                        <button
+                            class="btn btn-secondary add-other-to-cart"
+                            type="button"
+                            data-product-id="<?= $pid ?>"
+                            data-product-nombre="<?= htmlspecialchars($p['nombre']) ?>"
+                            data-product-precio="<?= (float)$p['precio'] ?>"
+                            data-product-imagen="<?= htmlspecialchars($p['imagen'] ?? '') ?>"
+                        >
+                            Añadir al carrito
+                        </button>
                     </article>
                 <?php endforeach; ?>
             </div>
