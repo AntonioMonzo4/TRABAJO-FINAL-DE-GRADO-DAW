@@ -128,7 +128,7 @@ switch ($ruta) {
         cargarVista('home.php');
         break;
 
-    
+
 
     case 'register':
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
@@ -236,8 +236,10 @@ switch ($ruta) {
         }
         cargarVista('admin/Dashboard.php');
         break;
-    
-    
+        
+    case 'checkout':
+        cargarVista('checkout.php'); // tu archivo es checkout.php
+        break;
 
 
     default:

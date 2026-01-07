@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/header.php';
 
-// Página de carrito basada en localStorage (ver VIEW/js/carrito.js y VIEW/js/carrito_pagina.js)
-
 $items = [
     ['label' => 'Inicio', 'url' => '/home'],
     ['label' => 'Carrito', 'url' => null]
@@ -17,7 +15,6 @@ require_once __DIR__ . '/partials/breadcrumb.php';
 
         <p id="carrito-count" class="muted" style="margin: 0 0 20px;"></p>
 
-        <!-- Lista de items -->
         <div id="carrito-items">
             <div id="carrito-vacio" style="display:none; padding:20px 0;">
                 <p>Tu carrito está vacío.</p>
@@ -25,31 +22,38 @@ require_once __DIR__ . '/partials/breadcrumb.php';
             </div>
         </div>
 
-        <!-- Resumen -->
         <div class="carrito-resumen" style="margin-top: 30px;">
             <h3>Resumen</h3>
+
             <div class="resumen-linea" style="display:flex;justify-content:space-between;gap:10px;">
                 <span>Subtotal</span>
                 <span id="subtotal">0.00 €</span>
             </div>
+
             <div class="resumen-linea" style="display:flex;justify-content:space-between;gap:10px;">
                 <span>Envío</span>
                 <span id="envio-costo">Gratis</span>
             </div>
+
             <div id="descuento-linea" class="resumen-linea" style="display:none;justify-content:space-between;gap:10px;">
                 <span>Descuento</span>
                 <span id="descuento-monto">-0.00 €</span>
             </div>
+
             <hr style="margin: 12px 0;">
+
             <div class="resumen-linea" style="display:flex;justify-content:space-between;gap:10px;font-weight:700;">
                 <span>Total</span>
                 <span id="total">0.00 €</span>
             </div>
 
+            <!-- Descuento visible pero deshabilitado -->
             <div class="descuento" style="margin-top: 15px; display:flex; gap:10px; flex-wrap:wrap;">
-                <input id="codigo-descuento" type="text" placeholder="Código de descuento" style="max-width:220px;">
-                <button id="aplicar-descuento" type="button" class="btn btn-secondary">Aplicar</button>
-                <span id="descuento-mensaje" class="descuento-mensaje" style="min-width: 220px;"></span>
+                <input id="codigo-descuento" type="text" placeholder="Códigos no disponibles" style="max-width:220px;" disabled readonly>
+                <button id="aplicar-descuento" type="button" class="btn btn-secondary" disabled>Aplicar</button>
+                <span id="descuento-mensaje" class="descuento-mensaje" style="min-width: 260px;">
+                    Actualmente no tenemos disponible ningún código de descuento
+                </span>
             </div>
 
             <div style="margin-top: 20px; display:flex; gap:10px; flex-wrap:wrap;">
@@ -58,18 +62,13 @@ require_once __DIR__ . '/partials/breadcrumb.php';
             </div>
         </div>
 
-        <!-- Recomendados (opcionales) -->
-        <div style="margin-top: 40px;">
-            <h3>También te puede interesar</h3>
-            <div id="grid-recomendados" class="grid-products"></div>
-        </div>
-
         <!-- Template item carrito -->
         <template id="template-carrito-item">
             <div class="carrito-item" style="display:flex;gap:15px;align-items:flex-start;border-bottom:1px solid rgba(0,0,0,0.08);padding:15px 0;">
                 <div class="item-imagen" style="width:90px;flex:0 0 90px;">
                     <img src="" alt="" style="width:90px;height:90px;object-fit:cover;border-radius:10px;">
                 </div>
+
                 <div class="item-info" style="flex:1;min-width: 200px;">
                     <div class="item-titulo" style="font-weight:700;"></div>
                     <div class="item-autor muted" style="font-size:0.95rem;"></div>
@@ -82,6 +81,7 @@ require_once __DIR__ . '/partials/breadcrumb.php';
                         <button type="button" class="btn-eliminar-item btn btn-secondary" style="margin-left:auto;">Eliminar</button>
                     </div>
                 </div>
+
                 <div class="item-total" style="min-width:120px;text-align:right;">
                     <div class="muted" style="font-size:0.9rem;">Total</div>
                     <div class="total-precio" style="font-weight:700;"></div>
@@ -89,21 +89,9 @@ require_once __DIR__ . '/partials/breadcrumb.php';
             </div>
         </template>
 
-        <!-- Template producto recomendado -->
-        <template id="template-producto-recomendado">
-            <article class="producto-recomendado product">
-                <img src="" alt="">
-                <h3 class="producto-titulo"></h3>
-                <p class="producto-autor muted"></p>
-                <p class="producto-precio"><strong></strong></p>
-                <button type="button" class="btn btn-secondary btn-anadir-carrito-recomendado">Añadir al carrito</button>
-            </article>
-        </template>
-
     </section>
 </main>
 
-<!-- Scripts del carrito (localStorage) -->
 <script src="/VIEW/js/carrito.js"></script>
 <script src="/VIEW/js/carrito_pagina.js"></script>
 

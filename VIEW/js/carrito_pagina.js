@@ -1,338 +1,250 @@
-// VIEW/js/carrito_pagina.js - Funcionalidades para la página del carrito
+// VIEW/js/carrito_pagina.js
 
 class CarritoPagina {
     constructor() {
         this.carritoManager = window.carritoManager;
+        this.carritoItemsEl = document.getElementById('carrito-items');
         this.init();
     }
 
     init() {
+        this.bloquearDescuento();
         this.renderCarrito();
-        this.setupEventListeners();
-        this.cargarProductosRecomendados();
+        this.setupDelegation();
+        this.setupCheckout();
     }
 
-    // Renderizar el carrito
+    bloquearDescuento() {
+        const input = document.getElementById('codigo-descuento');
+        const btn = document.getElementById('aplicar-descuento');
+        const msg = document.getElementById('descuento-mensaje');
+
+        if (input) {
+            input.value = '';
+            input.disabled = true;
+            input.readOnly = true;
+            input.placeholder = 'Códigos no disponibles';
+        }
+        if (btn) btn.disabled = true;
+        if (msg) msg.textContent = 'Actualmente no tenemos disponible ningún código de descuento';
+    }
+
     renderCarrito() {
         const items = this.carritoManager.obtenerItemsCarrito();
-        const carritoItems = document.getElementById('carrito-items');
         const carritoVacio = document.getElementById('carrito-vacio');
         const carritoCount = document.getElementById('carrito-count');
-        
-        // Actualizar contador
+
         carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
-        
+
+        // limpia todo (menos el bloque de vacío que reinsertamos si aplica)
+        this.carritoItemsEl.innerHTML = '';
+
         if (items.length === 0) {
             carritoVacio.style.display = 'block';
-            carritoItems.innerHTML = '';
-            carritoItems.appendChild(carritoVacio);
-            this.actualizarResumen(0, 0, 0);
+            this.carritoItemsEl.appendChild(carritoVacio);
+            this.actualizarResumen(0, 0, 0, 0);
             this.toggleProcederPago(false);
             return;
         }
 
         carritoVacio.style.display = 'none';
-        
-        // Limpiar items existentes
-        carritoItems.innerHTML = '';
-        
-        // Renderizar cada item
+
+        const template = document.getElementById('template-carrito-item');
+
         items.forEach((item, index) => {
-            const itemElement = this.crearItemCarrito(item, index);
-            carritoItems.appendChild(itemElement);
+            const clone = template.content.cloneNode(true);
+            const row = clone.querySelector('.carrito-item');
+
+            row.dataset.productId = String(item.id);
+            row.dataset.productType = String(item.tipo);
+
+            const img = row.querySelector('.item-imagen img');
+            const baseImg = item.tipo === 'other' ? '/VIEW/img/productos/' : '/VIEW/img/libros/';
+            img.src = `${baseImg}${item.imagen}`;
+            img.alt = item.nombre;
+
+            row.querySelector('.item-titulo').textContent = item.nombre;
+
+            const autorEl = row.querySelector('.item-autor');
+            if (item.tipo === 'book') {
+                autorEl.style.display = '';
+                autorEl.textContent = `por ${item.autor || 'Autor desconocido'}`;
+            } else {
+                autorEl.style.display = 'none';
+            }
+
+            const precio = Number(item.precio) || 0;
+            const cantidad = Number(item.cantidad) || 1;
+
+            row.querySelector('.item-precio-unitario').textContent = `${precio.toFixed(2)} € c/u`;
+
+            const input = row.querySelector('.input-cantidad');
+            input.value = cantidad;
+            input.id = `cantidad-${index}`;
+
+            row.querySelector('.total-precio').textContent = `${(precio * cantidad).toFixed(2)} €`;
+
+            this.carritoItemsEl.appendChild(clone);
         });
+
+        this.actualizarResumenTotal();
+        this.toggleProcederPago(true);
+    }
+
+    setupDelegation() {
+        if (!this.carritoItemsEl) return;
+
+        this.carritoItemsEl.addEventListener('click', (e) => {
+            const itemEl = e.target.closest('.carrito-item');
+            if (!itemEl) return;
+
+            const id = itemEl.dataset.productId;
+            const tipo = itemEl.dataset.productType;
+
+            // + / -
+            if (e.target.closest('.btn-sumar')) {
+                e.preventDefault();
+                const input = itemEl.querySelector('.input-cantidad');
+                const actual = parseInt(input.value, 10) || 1;
+                this.carritoManager.actualizarCantidad(id, tipo, actual + 1);
+                this.actualizarFila(itemEl);
+                this.actualizarResumenTotal();
+                return;
+            }
+
+            if (e.target.closest('.btn-restar')) {
+                e.preventDefault();
+                const input = itemEl.querySelector('.input-cantidad');
+                const actual = parseInt(input.value, 10) || 1;
+                const nueva = actual - 1;
+
+                if (nueva <= 0) {
+                    this.carritoManager.eliminarDelCarrito(id, tipo);
+                    itemEl.remove();               // quita el hueco
+                    this.postEliminarRefresh();     // refresca contadores/empty state
+                } else {
+                    this.carritoManager.actualizarCantidad(id, tipo, nueva);
+                    this.actualizarFila(itemEl);
+                    this.actualizarResumenTotal();
+                }
+                return;
+            }
+
+            // Eliminar
+            if (e.target.closest('.btn-eliminar-item')) {
+                e.preventDefault();
+                this.carritoManager.eliminarDelCarrito(id, tipo);
+                itemEl.remove();                   // quita el hueco
+                this.postEliminarRefresh();
+                this.mostrarNotificacion('Producto eliminado del carrito');
+            }
+        });
+
+        // Cambio directo en input cantidad
+        this.carritoItemsEl.addEventListener('change', (e) => {
+            const input = e.target.closest('.input-cantidad');
+            if (!input) return;
+
+            const itemEl = e.target.closest('.carrito-item');
+            if (!itemEl) return;
+
+            const id = itemEl.dataset.productId;
+            const tipo = itemEl.dataset.productType;
+
+            const nueva = parseInt(input.value, 10);
+            if (!Number.isFinite(nueva) || nueva <= 0) {
+                this.carritoManager.eliminarDelCarrito(id, tipo);
+                itemEl.remove();
+                this.postEliminarRefresh();
+                return;
+            }
+
+            this.carritoManager.actualizarCantidad(id, tipo, Math.min(99, Math.max(1, nueva)));
+            this.actualizarFila(itemEl);
+            this.actualizarResumenTotal();
+        });
+    }
+
+    actualizarFila(itemEl) {
+        const id = itemEl.dataset.productId;
+        const tipo = itemEl.dataset.productType;
+
+        const items = this.carritoManager.obtenerItemsCarrito();
+        const item = items.find(i => String(i.id) === String(id) && String(i.tipo) === String(tipo));
+        if (!item) return;
+
+        const precio = Number(item.precio) || 0;
+        const cantidad = Number(item.cantidad) || 1;
+
+        const input = itemEl.querySelector('.input-cantidad');
+        input.value = cantidad;
+
+        itemEl.querySelector('.total-precio').textContent = `${(precio * cantidad).toFixed(2)} €`;
+    }
+
+    postEliminarRefresh() {
+        // Si no quedan items, re-render completo para mostrar "vacío"
+        const items = this.carritoManager.obtenerItemsCarrito();
+        const carritoCount = document.getElementById('carrito-count');
+
+        carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
+
+        if (items.length === 0) {
+            this.renderCarrito();
+            return;
+        }
 
         this.actualizarResumenTotal();
     }
 
-    // Crear elemento de item del carrito
-    crearItemCarrito(item, index) {
-        const template = document.getElementById('template-carrito-item');
-        const clone = template.content.cloneNode(true);
-        const itemElement = clone.querySelector('.carrito-item');
-        
-        // Configurar datos
-        itemElement.setAttribute('data-product-id', item.id);
-        itemElement.setAttribute('data-product-type', item.tipo);
-        
-        // Imagen
-        const img = itemElement.querySelector('.item-imagen img');
-        const baseImg = item.tipo === 'other' ? '/VIEW/img/productos/' : '/VIEW/img/libros/';
-        img.src = `${baseImg}${item.imagen}`;
-        img.alt = item.nombre;
-        img.onerror = function() {
-            this.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
-        };
-        
-        // Información
-        itemElement.querySelector('.item-titulo').textContent = item.nombre;
-        const autorEl = itemElement.querySelector('.item-autor');
-        if (item.tipo === 'book') {
-            autorEl.textContent = `por ${item.autor || 'Autor desconocido'}`;
-            autorEl.style.display = '';
-        } else {
-            autorEl.textContent = '';
-            autorEl.style.display = 'none';
-        }
-
-        itemElement.querySelector('.item-precio-unitario').textContent = `${item.precio.toFixed(2)} € c/u`;
-        
-        // Cantidad
-        const inputCantidad = itemElement.querySelector('.input-cantidad');
-        inputCantidad.value = item.cantidad;
-        inputCantidad.id = `cantidad-${index}`;
-        
-        // Total
-        const total = item.precio * item.cantidad;
-        itemElement.querySelector('.total-precio').textContent = `${total.toFixed(2)} €`;
-        
-        // Event listeners para controles de cantidad
-        const btnRestar = itemElement.querySelector('.btn-restar');
-        const btnSumar = itemElement.querySelector('.btn-sumar');
-        
-        btnRestar.addEventListener('click', () => this.actualizarCantidad(item.id, item.tipo, item.cantidad - 1));
-        btnSumar.addEventListener('click', () => this.actualizarCantidad(item.id, item.tipo, item.cantidad + 1));
-        
-        inputCantidad.addEventListener('change', (e) => {
-            const nuevaCantidad = parseInt(e.target.value);
-            if (nuevaCantidad > 0 && nuevaCantidad <= 99) {
-                this.actualizarCantidad(item.id, item.tipo, nuevaCantidad);
-            } else {
-                e.target.value = item.cantidad;
-            }
-        });
-        
-        // Event listeners para eliminar
-        const btnsEliminar = itemElement.querySelectorAll('.btn-eliminar-item');
-        btnsEliminar.forEach(btn => {
-            btn.addEventListener('click', () => this.eliminarItem(item.id, item.tipo));
-        });
-        
-        return itemElement;
-    }
-
-    // Actualizar cantidad de un item
-    actualizarCantidad(id, tipo, nuevaCantidad) {
-        if (nuevaCantidad < 1) nuevaCantidad = 1;
-        if (nuevaCantidad > 99) nuevaCantidad = 99;
-        
-        this.carritoManager.actualizarCantidad(id, tipo, nuevaCantidad);
-        this.renderCarrito();
-        
-        // Mostrar feedback visual
-        const itemElement = document.querySelector(`[data-product-id="${id}"][data-product-type="${tipo}"]`);
-        if (itemElement) {
-            itemElement.classList.add('actualizando');
-            setTimeout(() => {
-                itemElement.classList.remove('actualizando');
-            }, 300);
-        }
-    }
-
-    // Eliminar item del carrito
-    eliminarItem(id, tipo) {
-        const itemElement = document.querySelector(`[data-product-id="${id}"][data-product-type="${tipo}"]`);
-        
-        if (itemElement) {
-            itemElement.classList.add('eliminando');
-            setTimeout(() => {
-                this.carritoManager.eliminarDelCarrito(id, tipo);
-                this.renderCarrito();
-                this.mostrarNotificacion('Producto eliminado del carrito');
-            }, 300);
-        }
-    }
-
-    // Actualizar resumen del pedido
     actualizarResumenTotal() {
-        const items = this.carritoManager.obtenerItemsCarrito();
         const subtotal = this.carritoManager.obtenerTotalCarrito();
-        
-        // Calcular envío (gratis para compras > 50€)
         let envio = 5.99;
-        if (subtotal >= 50 || subtotal === 0) {
-            envio = 0;
-        }
-        
-        // Calcular descuento (si existe)
-        const descuento = this.obtenerDescuentoAplicado();
+        if (subtotal >= 50 || subtotal === 0) envio = 0;
+
+        const descuento = 0;
         const total = subtotal + envio - descuento;
-        
+
         this.actualizarResumen(subtotal, envio, descuento, total);
-        this.toggleProcederPago(items.length > 0);
     }
 
-    actualizarResumen(subtotal, envio, descuento, total = null) {
-        if (total === null) {
-            total = subtotal + envio - descuento;
-        }
-        
-        document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)} €`;
-        document.getElementById('envio-costo').textContent = envio === 0 ? 'Gratis' : `${envio.toFixed(2)} €`;
-        
+    actualizarResumen(subtotal, envio, descuento, total) {
+        document.getElementById('subtotal').textContent = `${Number(subtotal).toFixed(2)} €`;
+        document.getElementById('envio-costo').textContent = envio === 0 ? 'Gratis' : `${Number(envio).toFixed(2)} €`;
+        document.getElementById('total').textContent = `${Number(total).toFixed(2)} €`;
+
         const descuentoLinea = document.getElementById('descuento-linea');
-        const descuentoMonto = document.getElementById('descuento-monto');
-        
-        if (descuento > 0) {
-            descuentoLinea.style.display = 'flex';
-            descuentoMonto.textContent = `-${descuento.toFixed(2)} €`;
-        } else {
-            descuentoLinea.style.display = 'none';
-        }
-        
-        document.getElementById('total').textContent = `${total.toFixed(2)} €`;
+        if (descuentoLinea) descuentoLinea.style.display = 'none';
     }
 
-    // Obtener descuento aplicado
-    obtenerDescuentoAplicado() {
-        // Simulación de descuento del 10% para compras > 100€
-        const subtotal = this.carritoManager.obtenerTotalCarrito();
-        return subtotal > 100 ? subtotal * 0.1 : 0;
-    }
-
-    // Habilitar/deshabilitar botón de proceder al pago
     toggleProcederPago(habilitar) {
-        const btnProcederPago = document.getElementById('proceder-pago');
-        if (btnProcederPago) {
-            btnProcederPago.disabled = !habilitar;
-            if (habilitar) {
-                btnProcederPago.addEventListener('click', () => this.procederAlPago());
-            } else {
-                btnProcederPago.removeEventListener('click', () => this.procederAlPago());
-            }
-        }
+        const btn = document.getElementById('proceder-pago');
+        if (!btn) return;
+        btn.disabled = !habilitar;
     }
 
-    // Proceder al pago
-    procederAlPago() {
-        window.location.href = '../index.php?pagina=checkout';
-    }
+    setupCheckout() {
+        const btn = document.getElementById('proceder-pago');
+        if (!btn) return;
 
-    // Cargar productos recomendados
-    async cargarProductosRecomendados() {
-        try {
-            const productosRecomendados = [
-                { id: 1, titulo: 'El Resplandor', autor: 'Stephen King', precio: 15.99, imagen: 'el-resplandor.png' },
-                { id: 2, titulo: 'Cien años de soledad', autor: 'Gabriel García Márquez', precio: 19.99, imagen: 'cien-anos-de-soledad.png' },
-                { id: 3, titulo: '1984', autor: 'George Orwell', precio: 12.99, imagen: '1984.png' },
-                { id: 4, titulo: 'Don Quijote', autor: 'Miguel de Cervantes', precio: 22.50, imagen: 'don-quijote.png' }
-            ];
+        btn.onclick = () => {
+            const cartJson = localStorage.getItem('carrito_circulos_atenea') || '[]';
 
-            this.renderProductosRecomendados(productosRecomendados);
-        } catch (error) {
-            console.error('Error al cargar productos recomendados:', error);
-        }
-    }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/checkout';
 
-    // Renderizar productos recomendados
-    renderProductosRecomendados(productos) {
-        const gridRecomendados = document.getElementById('grid-recomendados');
-        if (!gridRecomendados) return;
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'cart_json';
+            input.value = cartJson;
 
-        gridRecomendados.innerHTML = '';
-
-        productos.forEach(producto => {
-            const template = document.getElementById('template-producto-recomendado');
-            const clone = template.content.cloneNode(true);
-            const productoElement = clone.querySelector('.producto-recomendado');
-
-            const img = productoElement.querySelector('img');
-            img.src = `/VIEW/img/libros/${producto.imagen}`;
-            img.alt = producto.titulo;
-            img.onerror = function() {
-                this.src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80';
-            };
-
-            productoElement.querySelector('.producto-titulo').textContent = producto.titulo;
-            productoElement.querySelector('.producto-autor').textContent = producto.autor;
-            productoElement.querySelector('.producto-precio strong').textContent = `${producto.precio.toFixed(2)} €`;
-
-            const btnAnadir = productoElement.querySelector('.btn-anadir-carrito-recomendado');
-            btnAnadir.setAttribute('data-book-id', producto.id);
-            btnAnadir.setAttribute('data-book-titulo', producto.titulo);
-            btnAnadir.setAttribute('data-book-precio', producto.precio);
-            btnAnadir.setAttribute('data-book-imagen', producto.imagen);
-
-            btnAnadir.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const productoData = {
-                    id: producto.id,
-                    tipo: 'book',
-                    nombre: producto.titulo,
-                    autor: producto.autor,
-                    precio: producto.precio,
-                    imagen: producto.imagen
-                };
-
-                this.carritoManager.agregarAlCarrito(productoData);
-                this.renderCarrito();
-            });
-
-            gridRecomendados.appendChild(productoElement);
-        });
-    }
-
-    // Configurar event listeners
-    setupEventListeners() {
-        const btnAplicarDescuento = document.getElementById('aplicar-descuento');
-        const inputDescuento = document.getElementById('codigo-descuento');
-
-        if (btnAplicarDescuento) {
-            btnAplicarDescuento.addEventListener('click', () => {
-                const codigo = inputDescuento.value.trim();
-                this.aplicarDescuento(codigo);
-            });
-
-            inputDescuento.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.aplicarDescuento(inputDescuento.value.trim());
-                }
-            });
-        }
-    }
-
-    // Aplicar código de descuento
-    aplicarDescuento(codigo) {
-        const descuentos = {
-            'BIENVENIDA10': 0.1,
-            'LIBRO15': 0.15,
-            'ENVIOGRATIS': 5.99
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
         };
-
-        if (!codigo) {
-            this.mostrarMensajeDescuento('Por favor, ingresa un código de descuento', 'error');
-            return;
-        }
-
-        const descuento = descuentos[codigo.toUpperCase()];
-
-        if (descuento) {
-            this.mostrarMensajeDescuento('¡Código de descuento aplicado correctamente!', 'success');
-            setTimeout(() => {
-                this.actualizarResumenTotal();
-            }, 500);
-        } else {
-            this.mostrarMensajeDescuento('Código de descuento no válido', 'error');
-        }
     }
 
-    mostrarMensajeDescuento(mensaje, tipo) {
-        const mensajeDescuento = document.getElementById('descuento-mensaje');
-        if (!mensajeDescuento) return;
-
-        mensajeDescuento.textContent = mensaje;
-        mensajeDescuento.className = 'descuento-mensaje';
-        mensajeDescuento.classList.add(tipo);
-
-        setTimeout(() => {
-            mensajeDescuento.textContent = '';
-            mensajeDescuento.className = 'descuento-mensaje';
-        }, 5000);
-    }
-
-    // Mostrar notificación
     mostrarNotificacion(mensaje) {
         if (window.carritoManager && typeof window.carritoManager.mostrarNotificacion === 'function') {
             window.carritoManager.mostrarNotificacion(mensaje);
@@ -340,24 +252,15 @@ class CarritoPagina {
     }
 }
 
-// Inicializar página del carrito
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof window.carritoManager !== 'undefined') {
-        window.carritoPagina = new CarritoPagina();
-    } else {
-        setTimeout(() => {
-            if (typeof window.carritoManager !== 'undefined') {
-                window.carritoPagina = new CarritoPagina();
-            } else {
-                console.error('CarritoManager no está disponible');
-            }
-        }, 1000);
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    // Si por orden de scripts aún no existe, espera un poco
+    const boot = () => {
+        if (window.carritoManager) {
+            window.carritoPagina = new CarritoPagina();
+        } else {
+            setTimeout(boot, 50);
+        }
+    };
+    boot();
 });
-
-// Actualizar el carrito cuando cambie desde otras páginas
-window.addEventListener('storage', function(e) {
-    if (e.key === 'carrito_circulos_atenea' && window.carritoPagina) {
-        window.carritoPagina.renderCarrito();
-    }
-});
+s
