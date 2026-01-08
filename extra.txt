@@ -40,3 +40,37 @@ INSERT INTO other_products (category_id, nombre, descripcion, precio, imagen, st
 (2, 'Bolígrafo metálico', 'Bolígrafo con grabado', 3.60, 'boligrafo_metal.jpg', 120),
 (3, 'Vela aromática', 'Vela para acompañar lectura', 8.90, 'vela.jpg', 35),
 (3, 'Caja regalo lectora', 'Caja con accesorios de lectura', 19.90, 'caja_regalo.jpg', 15);
+
+
+INSERT INTO users 
+(nombre, apellidos, email, fecha_nacimiento, telefono, genero, password_hash, rol)
+VALUES
+(
+  'Administrador',
+  'Principal',
+  'admin@tuweb.com',
+  NULL,
+  '',
+  '',
+  'PEGA_AQUI_EL_HASH_GENERADO',
+  'admin'
+);
+
+INSERT INTO users 
+(nombre, apellidos, email, fecha_nacimiento, telefono, genero, password_hash, rol)
+VALUES
+(
+  'Administrador',
+  'Principal',
+  'admin@tuweb.com',
+  NULL,
+  '',
+  '',
+  '$2y$10$uF3sKJd9q8JkL...etc...',
+  'admin'
+);
+
+SELECT email, rol, LENGTH(password_hash) AS len, LEFT(password_hash, 4) AS pref
+FROM users;
+
+$2y$10$hVl0cHtqI8TNYeuP7LvKZuclMHi/.fyZnn2V4uQwSemWMOwoNRavO

@@ -5,7 +5,7 @@ class PedidoController
 {
     public static function crear()
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE) session_start();
 
         if (!isset($_SESSION['usuario'])) {
             header("Location: /login");
@@ -24,47 +24,62 @@ class PedidoController
         try {
             $total = 0;
             foreach ($carrito as $i) {
-                $total += $i['precio'] * $i['cantidad'];
+                $precio = (float)($i['precio'] ?? 0);
+                $cantidad = (int)($i['cantidad'] ?? 0);
+                $total += $precio * $cantidad;
             }
+
+            // OJO: en sesión el id es 'id' (no 'user_id')
+            $userId = (int)($_SESSION['usuario']['id'] ?? 0);
+            if ($userId <= 0) {
+                throw new Exception("Usuario en sesión inválido");
+            }
+
+            $metodo = $_POST['metodo_pago'] ?? 'tarjeta';
 
             // Crear pedido
             $stmt = $pdo->prepare("
-              INSERT INTO orders (user_id, precio_total, metodo_pago)
-              VALUES (:user_id, :total, :metodo)
+                INSERT INTO orders (user_id, precio_total, metodo_pago)
+                VALUES (:user_id, :total, :metodo)
             ");
             $stmt->execute([
-                ':user_id' => $_SESSION['usuario']['user_id'],
+                ':user_id' => $userId,
                 ':total'   => $total,
-                ':metodo'  => $_POST['metodo_pago']
+                ':metodo'  => $metodo
             ]);
 
-            $orderId = $pdo->lastInsertId();
+            $orderId = (int)$pdo->lastInsertId();
 
             // Líneas de pedido + stock
             foreach ($carrito as $i) {
-                // item
+                $type = $i['type'] ?? ($i['tipo'] ?? null); // por si viene con 'tipo'
+                $pid  = (int)($i['id'] ?? 0);
+                $cant = (int)($i['cantidad'] ?? 1);
+                $precioUnit = (float)($i['precio'] ?? 0);
+
+                if ($pid <= 0 || $precioUnit <= 0) continue;
+
                 $stmt = $pdo->prepare("
-                  INSERT INTO order_items
-                  (order_id, product_type, product_id, cantidad, precio_unitario)
-                  VALUES (:order, :type, :pid, :cant, :precio)
+                    INSERT INTO order_items
+                    (order_id, product_type, product_id, cantidad, precio_unitario)
+                    VALUES (:order, :type, :pid, :cant, :precio)
                 ");
                 $stmt->execute([
                     ':order'  => $orderId,
-                    ':type'   => ($i['type'] === 'book') ? 1 : 2,
-                    ':pid'    => $i['id'],
-                    ':cant'   => $i['cantidad'],
-                    ':precio' => $i['precio']
+                    ':type'   => ($type === 'book') ? 1 : 2,
+                    ':pid'    => $pid,
+                    ':cant'   => $cant,
+                    ':precio' => $precioUnit
                 ]);
 
-                // stock
-                if ($i['type'] === 'book') {
+                if ($type === 'book') {
                     $pdo->prepare("
-                      UPDATE books SET stock = stock - :c WHERE book_id = :id
-                    ")->execute([':c' => $i['cantidad'], ':id' => $i['id']]);
+                        UPDATE books SET stock = stock - :c WHERE book_id = :id
+                    ")->execute([':c' => $cant, ':id' => $pid]);
                 } else {
                     $pdo->prepare("
-                      UPDATE other_products SET stock = stock - :c WHERE product_id = :id
-                    ")->execute([':c' => $i['cantidad'], ':id' => $i['id']]);
+                        UPDATE other_products SET stock = stock - :c WHERE product_id = :id
+                    ")->execute([':c' => $cant, ':id' => $pid]);
                 }
             }
 
@@ -79,5 +94,45 @@ class PedidoController
             header("Location: /carrito");
             exit;
         }
+    }
+
+    public static function misPedidos()
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        if (!isset($_SESSION['usuario'])) {
+            header("Location: /login");
+            exit;
+        }
+
+        // Pasamos datos a la vista via variables
+        $pdo = conexion::conexionBBDD();
+        $userId = (int)($_SESSION['usuario']['id'] ?? 0);
+
+        $stmt = $pdo->prepare("
+            SELECT order_id, precio_total, metodo_pago, created_at
+            FROM orders
+            WHERE user_id = :uid
+            ORDER BY order_id DESC
+        ");
+        $stmt->execute([':uid' => $userId]);
+        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Cargar vista
+        // (queda disponible $pedidos)
+        $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
+        $candidatos = [
+            $docRoot . '/VIEW/MisPedidos.php',
+            $docRoot . '/view/MisPedidos.php',
+            __DIR__ . '/../VIEW/MisPedidos.php',
+            __DIR__ . '/../view/MisPedidos.php',
+        ];
+        foreach ($candidatos as $f) {
+            if ($f && file_exists($f)) { require $f; return; }
+        }
+
+        http_response_code(404);
+        echo "<h1>Error 404</h1><p>Vista no encontrada: MisPedidos.php</p>";
+        exit;
     }
 }

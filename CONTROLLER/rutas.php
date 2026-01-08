@@ -214,6 +214,22 @@ switch ($ruta) {
         cargarVista('TerminosCondiciones.php');
         break;
 
+    case 'perfil':
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        if (!isset($_SESSION['usuario'])) {
+            header("Location: /login");
+            exit;
+        }
+        cargarVista('Perfil.php');
+        break;
+
+    case 'mis-pedidos':
+    case 'mis_pedidos':
+        require_once __DIR__ . '/PedidoController.php';
+        PedidoController::misPedidos();
+        break;
+
+
     case 'login':
         if ($method === 'GET') {
             cargarVista('FormLogin.php');
@@ -230,13 +246,13 @@ switch ($ruta) {
 
     case 'admin':
         if (session_status() === PHP_SESSION_NONE) session_start();
-        if (empty($_SESSION['user']) || ($_SESSION['user']['rol'] ?? '') !== 'admin') {
+        if (empty($_SESSION['usuario']) || ($_SESSION['usuario']['rol'] ?? '') !== 'admin') {
             header("Location: /login");
             exit;
         }
         cargarVista('admin/Dashboard.php');
         break;
-        
+
     case 'checkout':
         cargarVista('checkout.php'); // tu archivo es checkout.php
         break;
