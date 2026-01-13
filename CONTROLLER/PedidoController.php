@@ -11,6 +11,8 @@ class PedidoController
             header("Location: /login");
             exit;
         }
+        $userId = (int)($_SESSION['usuario']['id'] ?? 0);
+
 
         $carrito = $_SESSION['carrito'] ?? [];
         if (!$carrito) {

@@ -159,6 +159,13 @@ switch ($ruta) {
         cargarVista('OtrosProductos.php');
         break;
 
+    case 'otros-productos':
+    case 'otros_productos':
+    case 'otrosproductos':
+        cargarVista('OtrosProductos.php');
+        break;
+
+
     // Carrito
     case 'carrito':
         cargarVista('Carrito.php');
@@ -245,13 +252,62 @@ switch ($ruta) {
         break;
 
     case 'admin':
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (empty($_SESSION['usuario']) || ($_SESSION['usuario']['rol'] ?? '') !== 'admin') {
-            header("Location: /login");
-            exit;
-        }
+        require_once __DIR__ . '/AdminGuard.php';
         cargarVista('admin/Dashboard.php');
         break;
+
+    case 'admin/stock':
+        require_once __DIR__ . '/AdminGuard.php';
+        cargarVista('admin/Stock.php');
+        break;
+    case 'pedido/crear':
+        require_once __DIR__ . '/PedidoController.php';
+        PedidoController::crear();
+        break;
+
+
+    case 'admin/stock/book': // POST editar libro
+        require_once __DIR__ . '/AdminGuard.php';
+        if (($method ?? 'GET') !== 'POST') {
+            header("Location: /admin/stock");
+            exit;
+        }
+
+        require_once __DIR__ . '/../MODEL/conexion.php';
+        $pdo = conexion::conexionBBDD();
+
+        $id = (int)($_POST['id'] ?? 0);
+        $precio = (float)($_POST['precio'] ?? 0);
+        $stock = (int)($_POST['stock'] ?? 0);
+
+        if ($id > 0) {
+            $stmt = $pdo->prepare("UPDATE books SET precio = :precio, stock = :stock WHERE book_id = :id");
+            $stmt->execute([':precio' => $precio, ':stock' => $stock, ':id' => $id]);
+        }
+        header("Location: /admin/stock");
+        exit;
+
+    case 'admin/stock/other': // POST editar otro producto
+        require_once __DIR__ . '/AdminGuard.php';
+        if (($method ?? 'GET') !== 'POST') {
+            header("Location: /admin/stock");
+            exit;
+        }
+
+        require_once __DIR__ . '/../MODEL/conexion.php';
+        $pdo = conexion::conexionBBDD();
+
+        $id = (int)($_POST['id'] ?? 0);
+        $precio = (float)($_POST['precio'] ?? 0);
+        $stock = (int)($_POST['stock'] ?? 0);
+
+        if ($id > 0) {
+            $stmt = $pdo->prepare("UPDATE other_products SET precio = :precio, stock = :stock WHERE product_id = :id");
+            $stmt->execute([':precio' => $precio, ':stock' => $stock, ':id' => $id]);
+        }
+        header("Location: /admin/stock");
+        exit;
+
 
     case 'checkout':
         cargarVista('checkout.php'); // tu archivo es checkout.php

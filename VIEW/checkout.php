@@ -109,7 +109,8 @@ require __DIR__ . '/partials/breadcrumb.php';
 
             <p class="carrito-total"><strong>Total: <?= number_format($total, 2) ?> €</strong></p>
 
-            <form method="post" action="/checkout">
+            <form method="post" action="/pedido/crear">
+
                 <label>Método de pago</label>
                 <select name="metodo_pago" required>
                     <option value="tarjeta">Tarjeta</option>
