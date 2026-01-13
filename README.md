@@ -18,3 +18,5 @@ Tecnologías utilizadas:
 -MYSQL
 
 -Hostinger: bbdd y host + dominio
+
+PENDIENTE DE MODIFICACIONES 
