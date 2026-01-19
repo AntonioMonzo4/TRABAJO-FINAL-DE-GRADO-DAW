@@ -265,6 +265,16 @@ switch ($ruta) {
         PedidoController::crear();
         break;
 
+    case 'pedido/ok':
+    case 'pedido-ok':
+        cargarVista('PedidoOk.php');
+        break;
+
+    case 'perfil/actualizar':
+        require_once __DIR__ . '/AuthController.php';
+        AuthController::actualizarPerfil();
+        break;
+
 
     case 'admin/stock/book': // POST editar libro
         require_once __DIR__ . '/AdminGuard.php';

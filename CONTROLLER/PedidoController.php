@@ -112,7 +112,7 @@ class PedidoController
         $userId = (int)($_SESSION['usuario']['id'] ?? 0);
 
         $stmt = $pdo->prepare("
-            SELECT order_id, precio_total, metodo_pago, created_at
+            SELECT order_id, precio_total, metodo_pago
             FROM orders
             WHERE user_id = :uid
             ORDER BY order_id DESC

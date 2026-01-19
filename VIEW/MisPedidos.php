@@ -10,7 +10,7 @@ if (!isset($_SESSION['usuario'])) {
 }
 
 $pdo = conexion::conexionBBDD();
-$uid = $_SESSION['usuario']['user_id'];
+$uid = $_SESSION['usuario']['id'];
 
 $pedidos = $pdo->prepare("
   SELECT * FROM orders
