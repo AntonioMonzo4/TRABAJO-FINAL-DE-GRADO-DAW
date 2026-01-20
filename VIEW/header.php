@@ -43,7 +43,7 @@ $carritoCount = $_SESSION['carrito_count'] ?? 0;
 </head>
 
 <body>
-    <?php require_once __DIR__ . '/partials/flash.php'; ?>
+    
 
     <header class="header">
     <!-- HEADER SUPERIOR -->

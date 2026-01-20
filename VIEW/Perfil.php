@@ -31,7 +31,8 @@ require_once __DIR__ . '/partials/breadcrumb.php';
       </div>
     <?php endif; ?>
 
-    <form method="POST" action="/perfil/actualizar" class="form" style="max-width:700px;">
+   <form method="POST" action="/perfil/actualizar" class="form" style="max-width:700px;">
+
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div>
           <label>Nombre</label>

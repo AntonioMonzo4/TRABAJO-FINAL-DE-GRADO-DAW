@@ -147,6 +147,13 @@ class CarritoManager {
             }, cantidad);
         });
     }
+
+    vaciarCarrito() {
+        this.carrito = [];
+        this.guardarCarritoLocalStorage();
+        this.actualizarContadorCarrito();
+    }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {

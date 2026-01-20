@@ -1,9 +1,9 @@
 <?php
 // CONTROLLER/authController.php
 // Controlador para manejo de autenticación (login, registro, logout)
-session_start();// Iniciamos sesión para manejar datos de usuario
+session_start(); // Iniciamos sesión para manejar datos de usuario
 
-require_once dirname(__DIR__) . '/MODEL/conexion.php';// Incluimos la conexión a la base de datos usamos PDO y dirname(__DIR__) para ir a la carpeta padre por fallos de ruta
+require_once dirname(__DIR__) . '/MODEL/conexion.php'; // Incluimos la conexión a la base de datos usamos PDO y dirname(__DIR__) para ir a la carpeta padre por fallos de ruta
 
 
 // Controlador de autenticación
@@ -61,7 +61,7 @@ class AuthController
             $_SESSION['usuario'] = [
                 'id'       => $user['user_id'],
                 'nombre'   => $user['nombre'],
-                'apellidos'=> $user['apellidos'],
+                'apellidos' => $user['apellidos'],
                 'email'    => $user['email'],
                 'rol'      => $user['rol'],
             ];
@@ -71,9 +71,8 @@ class AuthController
 
             header('Location: /home');
             exit;
-
         } catch (PDOException $e) {
-            
+
             // En entorno real: log y mensaje genérico
             error_log('Error login: ' . $e->getMessage());
             $_SESSION['login_error'] = 'Error interno. Inténtalo más tarde.';
@@ -85,7 +84,7 @@ class AuthController
     //Función para manejar el logout de usuarios
     public static function logout()
     {
-    
+
         // Destruir la sesión y redirigir a la página de inicio
         session_start();
         session_unset();
@@ -154,7 +153,7 @@ class AuthController
             $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email");
             $stmt->execute([':email' => $email]);
 
-            
+
             if ($stmt->fetch()) {
                 $_SESSION['register_errors'] = ['Ya existe un usuario con ese email.'];
                 $_SESSION['register_old'] = [
@@ -197,7 +196,7 @@ class AuthController
             $_SESSION['usuario'] = [
                 'id'       => $user_id,
                 'nombre'   => $nombre,
-                'apellidos'=> $apellidos,
+                'apellidos' => $apellidos,
                 'email'    => $email,
                 'rol'      => 'cliente',
             ];
@@ -206,12 +205,117 @@ class AuthController
 
             header('Location: /home');
             exit;
-
         } catch (PDOException $e) {
             error_log('Error registro: ' . $e->getMessage());
             $_SESSION['register_errors'] = ['Error interno. Inténtalo más tarde.'];
             header('Location: /register');
             exit;
         }
+    }
+    public static function actualizarPerfil()
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+
+        if (!isset($_SESSION['usuario'])) {
+            header("Location: /login");
+            exit;
+        }
+
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            header("Location: /perfil");
+            exit;
+        }
+
+        require_once __DIR__ . '/../MODEL/conexion.php';
+        $pdo = conexion::conexionBBDD();
+
+        $userId = (int)($_SESSION['usuario']['id'] ?? 0);
+        if ($userId <= 0) {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Sesión inválida.'];
+            header("Location: /perfil");
+            exit;
+        }
+
+        $nombre = trim((string)($_POST['nombre'] ?? ''));
+        $apellidos = trim((string)($_POST['apellidos'] ?? ''));
+        $email = trim((string)($_POST['email'] ?? ''));
+        $telefono = trim((string)($_POST['telefono'] ?? ''));
+        $genero = trim((string)($_POST['genero'] ?? ''));
+        $fecha = trim((string)($_POST['fecha_nacimiento'] ?? ''));
+
+        if ($nombre === '' || $email === '') {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Nombre y email son obligatorios.'];
+            header("Location: /perfil");
+            exit;
+        }
+
+        // Validación mínima email
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Email no válido.'];
+            header("Location: /perfil");
+            exit;
+        }
+
+        // Evitar colisión de email con otro usuario
+        $stmt = $pdo->prepare("SELECT user_id FROM users WHERE email = :email AND user_id <> :id LIMIT 1");
+        $stmt->execute([':email' => $email, ':id' => $userId]);
+        if ($stmt->fetch()) {
+            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Ese email ya está en uso.'];
+            header("Location: /perfil");
+            exit;
+        }
+
+        // Actualiza datos (NO tocamos rol)
+        $stmt = $pdo->prepare("
+        UPDATE users
+        SET nombre = :nombre,
+            apellidos = :apellidos,
+            email = :email,
+            telefono = :telefono,
+            genero = :genero,
+            fecha_nacimiento = :fecha
+        WHERE user_id = :id
+    ");
+        $stmt->execute([
+            ':nombre' => $nombre,
+            ':apellidos' => $apellidos,
+            ':email' => $email,
+            ':telefono' => $telefono,
+            ':genero' => $genero,
+            ':fecha' => ($fecha === '' ? null : $fecha),
+            ':id' => $userId
+        ]);
+
+        // Cambio de contraseña (opcional)
+        $p1 = (string)($_POST['password_nueva'] ?? '');
+        $p2 = (string)($_POST['password_nueva_2'] ?? '');
+        if ($p1 !== '' || $p2 !== '') {
+            if ($p1 !== $p2) {
+                $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Las contraseñas no coinciden.'];
+                header("Location: /perfil");
+                exit;
+            }
+            if (strlen($p1) < 6) {
+                $_SESSION['flash'] = ['type' => 'error', 'msg' => 'La contraseña debe tener al menos 6 caracteres.'];
+                header("Location: /perfil");
+                exit;
+            }
+
+            $hash = password_hash($p1, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare("UPDATE users SET password_hash = :h WHERE user_id = :id");
+            $stmt->execute([':h' => $hash, ':id' => $userId]);
+        }
+
+        // Refresca sesión (sin rol visible/editable, pero lo conservamos)
+        $_SESSION['usuario']['nombre'] = $nombre;
+        $_SESSION['usuario']['apellidos'] = $apellidos;
+        $_SESSION['usuario']['email'] = $email;
+        $_SESSION['usuario']['telefono'] = $telefono;
+        $_SESSION['usuario']['genero'] = $genero;
+        $_SESSION['usuario']['fecha_nacimiento'] = ($fecha === '' ? null : $fecha);
+
+        $_SESSION['flash'] = ['type' => 'ok', 'msg' => 'Perfil actualizado correctamente.'];
+        header("Location: /perfil");
+        exit;
     }
 }
