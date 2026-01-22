@@ -92,7 +92,7 @@ require_once __DIR__ . '/partials/breadcrumb.php';
     </section>
 </main>
 
-<script src="/VIEW/js/carrito.js"></script>
+
 <script src="/VIEW/js/carrito_pagina.js"></script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

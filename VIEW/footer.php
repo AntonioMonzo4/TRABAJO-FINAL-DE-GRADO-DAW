@@ -1,3 +1,4 @@
+
 <footer class="footer">
     <div class="upFooter">
         <img src="/VIEW/img/logo_principal.png" alt="logo_footer">

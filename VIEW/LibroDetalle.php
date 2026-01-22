@@ -56,11 +56,7 @@ require __DIR__ . '/partials/breadcrumb.php';
 
                 <?php if ((int)$libro['stock'] > 0): ?>
                     <!-- Carrito en localStorage (sin POST al servidor) -->
-                    <div class="acciones-carrito">
-                        <label style="display:inline-flex;align-items:center;gap:8px;">
-                            Cantidad
-                            <input type="number" name="cantidad" value="1" min="1" max="99" style="width:80px;">
-                        </label>
+                   
 
                         <button
                             type="button"

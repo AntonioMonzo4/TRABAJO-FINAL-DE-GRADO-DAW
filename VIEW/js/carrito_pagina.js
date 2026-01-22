@@ -1,100 +1,118 @@
 // VIEW/js/carrito_pagina.js
+// CarritoPagina v2 (reset resumen inmediato cuando el carrito queda vacío)
 
 class CarritoPagina {
     constructor() {
         this.carritoManager = window.carritoManager;
         this.carritoItemsEl = document.getElementById('carrito-items');
+        this.template = document.getElementById('template-carrito-item');
+
         this.init();
     }
 
     init() {
         this.bloquearDescuento();
-        this.renderCarrito();
         this.setupDelegation();
-        this.setupVaciarCarrito();
         this.setupCheckout();
+        this.renderCarrito();
+        console.log('CarritoPagina v2 cargado'); // para confirmar que se carga el archivo correcto
     }
 
     bloquearDescuento() {
         const input = document.getElementById('codigo-descuento');
         const btn = document.getElementById('aplicar-descuento');
         const msg = document.getElementById('descuento-mensaje');
+        const linea = document.getElementById('descuento-linea');
 
         if (input) {
-            input.value = '';
             input.disabled = true;
             input.readOnly = true;
+            input.value = '';
             input.placeholder = 'Códigos no disponibles';
         }
         if (btn) btn.disabled = true;
         if (msg) msg.textContent = 'Actualmente no tenemos disponible ningún código de descuento';
+        if (linea) linea.style.display = 'none';
     }
 
+    // ---------- Render principal ----------
     renderCarrito() {
-        const items = this.carritoManager.obtenerItemsCarrito();
-        const carritoVacio = document.getElementById('carrito-vacio');
+        const items = this.carritoManager?.obtenerItemsCarrito?.() || [];
+
         const carritoCount = document.getElementById('carrito-count');
+        if (carritoCount) {
+            carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
+        }
 
-        carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
+        // Limpia contenedor
+        if (this.carritoItemsEl) this.carritoItemsEl.innerHTML = '';
 
-        // limpia todo (menos el bloque de vacío que reinsertamos si aplica)
-        this.carritoItemsEl.innerHTML = '';
-
-        if (items.length === 0) {
-            carritoVacio.style.display = 'block';
-            this.carritoItemsEl.appendChild(carritoVacio);
-            this.actualizarResumen(0, 0, 0, 0);
-            this.toggleProcederPago(false);
+        // Si está vacío => reset DOM inmediato
+        if (!items || items.length === 0) {
+            this.resetResumenVacio();
             return;
         }
 
-        carritoVacio.style.display = 'none';
+        // Oculta bloque vacío
+        const carritoVacio = document.getElementById('carrito-vacio');
+        if (carritoVacio) carritoVacio.style.display = 'none';
 
-        const template = document.getElementById('template-carrito-item');
-
-        items.forEach((item, index) => {
-            const clone = template.content.cloneNode(true);
+        // Pinta items
+        items.forEach((item) => {
+            const clone = this.template.content.cloneNode(true);
             const row = clone.querySelector('.carrito-item');
 
             row.dataset.productId = String(item.id);
             row.dataset.productType = String(item.tipo);
 
+            // Imagen
             const img = row.querySelector('.item-imagen img');
             const baseImg = item.tipo === 'other' ? '/VIEW/img/productos/' : '/VIEW/img/libros/';
-            img.src = `${baseImg}${item.imagen}`;
-            img.alt = item.nombre;
+            img.src = `${baseImg}${item.imagen || ''}`;
+            img.alt = item.nombre || '';
+            img.onerror = function () {
+                this.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80';
+            };
 
-            row.querySelector('.item-titulo').textContent = item.nombre;
+            // Título
+            row.querySelector('.item-titulo').textContent = item.nombre || '';
 
+            // Autor (solo libros)
             const autorEl = row.querySelector('.item-autor');
-            if (item.tipo === 'book') {
-                autorEl.style.display = '';
-                autorEl.textContent = `por ${item.autor || 'Autor desconocido'}`;
-            } else {
-                autorEl.style.display = 'none';
+            if (autorEl) {
+                if (item.tipo === 'book' && item.autor) {
+                    autorEl.textContent = item.autor;
+                    autorEl.style.display = '';
+                } else {
+                    autorEl.textContent = '';
+                    autorEl.style.display = 'none';
+                }
             }
 
-            const precio = Number(item.precio) || 0;
-            const cantidad = Number(item.cantidad) || 1;
+            // Precio unitario y total fila
+            const precioUnit = Number(item.precio || 0);
+            const qty = Number(item.cantidad || 1);
 
-            row.querySelector('.item-precio-unitario').textContent = `${precio.toFixed(2)} € c/u`;
+            row.querySelector('.item-precio-unitario').textContent = `${precioUnit.toFixed(2)} € / unidad`;
 
-            const input = row.querySelector('.input-cantidad');
-            input.value = cantidad;
-            input.id = `cantidad-${index}`;
+            const inputCantidad = row.querySelector('.input-cantidad');
+            inputCantidad.value = String(qty);
 
-            row.querySelector('.total-precio').textContent = `${(precio * cantidad).toFixed(2)} €`;
+            row.querySelector('.total-precio').textContent = `${(precioUnit * qty).toFixed(2)} €`;
 
             this.carritoItemsEl.appendChild(clone);
         });
 
+        // Resumen
         this.actualizarResumenTotal();
         this.toggleProcederPago(true);
     }
 
+    // ---------- Delegación de eventos ----------
     setupDelegation() {
         if (!this.carritoItemsEl) return;
 
+        // Clicks (+ / - / eliminar)
         this.carritoItemsEl.addEventListener('click', (e) => {
             const itemEl = e.target.closest('.carrito-item');
             if (!itemEl) return;
@@ -102,46 +120,41 @@ class CarritoPagina {
             const id = itemEl.dataset.productId;
             const tipo = itemEl.dataset.productType;
 
-            // + / -
+            // SUMAR
             if (e.target.closest('.btn-sumar')) {
                 e.preventDefault();
                 const input = itemEl.querySelector('.input-cantidad');
                 const actual = parseInt(input.value, 10) || 1;
                 this.carritoManager.actualizarCantidad(id, tipo, actual + 1);
-                this.actualizarFila(itemEl);
-                this.actualizarResumenTotal();
+                this.renderCarrito();
                 return;
             }
 
+            // RESTAR
             if (e.target.closest('.btn-restar')) {
                 e.preventDefault();
                 const input = itemEl.querySelector('.input-cantidad');
                 const actual = parseInt(input.value, 10) || 1;
                 const nueva = actual - 1;
 
-                if (nueva <= 0) {
-                    this.carritoManager.eliminarDelCarrito(id, tipo);
-                    itemEl.remove();               // quita el hueco
-                    this.postEliminarRefresh();     // refresca contadores/empty state
-                } else {
-                    this.carritoManager.actualizarCantidad(id, tipo, nueva);
-                    this.actualizarFila(itemEl);
-                    this.actualizarResumenTotal();
-                }
+                if (nueva <= 0) this.carritoManager.eliminarDelCarrito(id, tipo);
+                else this.carritoManager.actualizarCantidad(id, tipo, nueva);
+
+                this.renderCarrito();
                 return;
             }
 
-            // Eliminar
+            // ELIMINAR
             if (e.target.closest('.btn-eliminar-item')) {
                 e.preventDefault();
                 this.carritoManager.eliminarDelCarrito(id, tipo);
-                itemEl.remove();                   // quita el hueco
-                this.postEliminarRefresh();
+                this.renderCarrito();
                 this.mostrarNotificacion('Producto eliminado del carrito');
+                return;
             }
         });
 
-        // Cambio directo en input cantidad
+        // Cambios manuales del input cantidad
         this.carritoItemsEl.addEventListener('change', (e) => {
             const input = e.target.closest('.input-cantidad');
             if (!input) return;
@@ -152,87 +165,88 @@ class CarritoPagina {
             const id = itemEl.dataset.productId;
             const tipo = itemEl.dataset.productType;
 
-            const nueva = parseInt(input.value, 10);
+            let nueva = parseInt(input.value, 10);
+
             if (!Number.isFinite(nueva) || nueva <= 0) {
                 this.carritoManager.eliminarDelCarrito(id, tipo);
-                itemEl.remove();
-                this.postEliminarRefresh();
+                this.renderCarrito();
                 return;
             }
 
-            this.carritoManager.actualizarCantidad(id, tipo, Math.min(99, Math.max(1, nueva)));
-            this.actualizarFila(itemEl);
-            this.actualizarResumenTotal();
+            if (nueva > 99) nueva = 99;
+            this.carritoManager.actualizarCantidad(id, tipo, nueva);
+            this.renderCarrito();
         });
     }
 
-    actualizarFila(itemEl) {
-        const id = itemEl.dataset.productId;
-        const tipo = itemEl.dataset.productType;
-
-        const items = this.carritoManager.obtenerItemsCarrito();
-        const item = items.find(i => String(i.id) === String(id) && String(i.tipo) === String(tipo));
-        if (!item) return;
-
-        const precio = Number(item.precio) || 0;
-        const cantidad = Number(item.cantidad) || 1;
-
-        const input = itemEl.querySelector('.input-cantidad');
-        input.value = cantidad;
-
-        itemEl.querySelector('.total-precio').textContent = `${(precio * cantidad).toFixed(2)} €`;
-    }
-
-    postEliminarRefresh() {
-        const items = this.carritoManager.obtenerItemsCarrito();
-
-        const carritoCount = document.getElementById('carrito-count');
-        if (carritoCount) {
-            carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
-        }
-
-        if (items.length === 0) {
-            this.resetResumenVacio();   // <- aquí se pone todo a cero
-            return;
-        }
-
-        this.actualizarResumenTotal();
-        this.toggleProcederPago(true);
-    }
-
-
-
+    // ---------- Resumen ----------
     actualizarResumenTotal() {
-        const subtotal = this.carritoManager.obtenerTotalCarrito();
+        const subtotal = Number(this.carritoManager.obtenerTotalCarrito() || 0);
+
+        // Envío 5.99€, gratis a partir de 50€
         let envio = 5.99;
-        if (subtotal >= 50 || subtotal === 0) envio = 0;
+        if (subtotal >= 50) envio = 0;
 
         const descuento = 0;
         const total = subtotal + envio - descuento;
 
-        this.actualizarResumen(subtotal, envio, descuento, total);
+        this.setResumenDOM(subtotal, envio, descuento, total);
     }
 
-    actualizarResumen(subtotal, envio, descuento, total) {
-        document.getElementById('subtotal').textContent = `${Number(subtotal).toFixed(2)} €`;
-        document.getElementById('envio-costo').textContent = envio === 0 ? 'Gratis' : `${Number(envio).toFixed(2)} €`;
-        document.getElementById('total').textContent = `${Number(total).toFixed(2)} €`;
+    // Escribe directamente en el DOM (más fiable que depender de estados intermedios)
+    setResumenDOM(subtotal, envio, descuento, total) {
+        const elSubtotal = document.getElementById('subtotal');
+        const elEnvio = document.getElementById('envio-costo');
+        const elDescuentoLinea = document.getElementById('descuento-linea');
+        const elDescuentoMonto = document.getElementById('descuento-monto');
+        const elTotal = document.getElementById('total');
 
-        const descuentoLinea = document.getElementById('descuento-linea');
-        if (descuentoLinea) descuentoLinea.style.display = 'none';
+        if (elSubtotal) elSubtotal.textContent = `${Number(subtotal).toFixed(2)} €`;
+
+        if (elEnvio) {
+            if (Number(envio) <= 0) elEnvio.textContent = 'Gratis';
+            else elEnvio.textContent = `${Number(envio).toFixed(2)} €`;
+        }
+
+        if (elDescuentoLinea) elDescuentoLinea.style.display = 'none';
+        if (elDescuentoMonto) elDescuentoMonto.textContent = `-${Number(descuento).toFixed(2)} €`;
+
+        if (elTotal) elTotal.textContent = `${Number(total).toFixed(2)} €`;
+    }
+
+    resetResumenVacio() {
+        // Resumen a 0, inmediato y explícito
+        this.setResumenDOM(0, 0, 0, 0);
+        this.toggleProcederPago(false);
+
+        const carritoVacio = document.getElementById('carrito-vacio');
+        if (carritoVacio && this.carritoItemsEl) {
+            carritoVacio.style.display = 'block';
+            this.carritoItemsEl.innerHTML = '';
+            this.carritoItemsEl.appendChild(carritoVacio);
+        }
+
+        const carritoCount = document.getElementById('carrito-count');
+        if (carritoCount) carritoCount.textContent = '0 productos';
     }
 
     toggleProcederPago(habilitar) {
         const btn = document.getElementById('proceder-pago');
-        if (!btn) return;
-        btn.disabled = !habilitar;
+        if (btn) btn.disabled = !habilitar;
     }
 
+    mostrarNotificacion(mensaje) {
+        if (window.carritoManager && typeof window.carritoManager.mostrarNotificacion === 'function') {
+            window.carritoManager.mostrarNotificacion(mensaje);
+        }
+    }
+
+    // ---------- Checkout ----------
     setupCheckout() {
         const btn = document.getElementById('proceder-pago');
         if (!btn) return;
 
-        btn.onclick = () => {
+        btn.addEventListener('click', () => {
             const cartJson = localStorage.getItem('carrito_circulos_atenea') || '[]';
 
             const form = document.createElement('form');
@@ -247,67 +261,11 @@ class CarritoPagina {
             form.appendChild(input);
             document.body.appendChild(form);
             form.submit();
-        };
-    }
-
-    mostrarNotificacion(mensaje) {
-        if (window.carritoManager && typeof window.carritoManager.mostrarNotificacion === 'function') {
-            window.carritoManager.mostrarNotificacion(mensaje);
-        }
-    }
-
-    resetResumenVacio() {
-        this.actualizarResumen(0, 0, 0, 0);
-        this.toggleProcederPago(false);
-
-        const carritoVacio = document.getElementById('carrito-vacio');
-        if (carritoVacio) {
-            carritoVacio.style.display = 'block';
-            this.carritoItemsEl.innerHTML = '';
-            this.carritoItemsEl.appendChild(carritoVacio);
-        }
-    }
-
-    setupVaciarCarrito() {
-        const btnVaciar = document.getElementById('vaciar-carrito'); // ajusta el id si es otro
-        if (!btnVaciar) return;
-
-        btnVaciar.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.carritoManager.vaciarCarrito();
-            this.resetResumenVacio();
-            this.mostrarNotificacion('Carrito vaciado');
         });
     }
-
-    resetResumenVacio() {
-        this.actualizarResumen(0, 0, 0, 0);
-        this.toggleProcederPago(false);
-
-        const carritoVacio = document.getElementById('carrito-vacio');
-        if (carritoVacio) {
-            carritoVacio.style.display = 'block';
-            this.carritoItemsEl.innerHTML = '';
-            this.carritoItemsEl.appendChild(carritoVacio);
-        }
-
-        const carritoCount = document.getElementById('carrito-count');
-        if (carritoCount) carritoCount.textContent = '0 productos';
-    }
-
-
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Si por orden de scripts aún no existe, espera un poco
-    const boot = () => {
-        if (window.carritoManager) {
-            window.carritoPagina = new CarritoPagina();
-        } else {
-            setTimeout(boot, 50);
-        }
-    };
-    boot();
+    if (!window.carritoManager) return;
+    new CarritoPagina();
 });
-s
