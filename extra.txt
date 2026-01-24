@@ -72,5 +72,3 @@ VALUES
 
 SELECT email, rol, LENGTH(password_hash) AS len, LEFT(password_hash, 4) AS pref
 FROM users;
-
-$2y$10$hVl0cHtqI8TNYeuP7LvKZuclMHi/.fyZnn2V4uQwSemWMOwoNRavO
