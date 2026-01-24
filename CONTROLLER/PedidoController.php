@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../MODEL/conexion.php';
 
 class PedidoController
@@ -13,6 +12,7 @@ class PedidoController
             exit;
         }
 
+        // Carrito en sesión (tu checkout debe pasarlo a sesión)
         $carrito = $_SESSION['carrito'] ?? [];
         if (!$carrito) {
             $_SESSION['flash'] = ['type' => 'error', 'msg' => 'El carrito está vacío.'];
@@ -20,15 +20,41 @@ class PedidoController
             exit;
         }
 
-        $userId = (int)($_SESSION['usuario']['id'] ?? 0); // CLAVE CORRECTA
+        $userId = (int)($_SESSION['usuario']['id'] ?? 0);
         if ($userId <= 0) {
             $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Sesión inválida.'];
             header("Location: /login");
             exit;
         }
 
-        $metodo = (string)($_POST['metodo_pago'] ?? 'tarjeta');
+        // ---------- Simulación método de pago ----------
+        $pagoTipo = (string)($_POST['pago_tipo'] ?? 'tarjeta');
+        $permitidos = ['tarjeta', 'paypal', 'transferencia'];
+        if (!in_array($pagoTipo, $permitidos, true)) $pagoTipo = 'tarjeta';
 
+        $pagoDetalle = null;
+
+        if ($pagoTipo === 'tarjeta') {
+            $name = trim((string)($_POST['card_name'] ?? ''));
+            $num  = preg_replace('/\D+/', '', (string)($_POST['card_number'] ?? ''));
+            $exp  = trim((string)($_POST['card_exp'] ?? ''));
+
+            $last4 = strlen($num) >= 4 ? substr($num, -4) : '----';
+            // NO guardamos CVV, NI el número completo
+            $pagoDetalle = "Tarjeta ****{$last4}" . ($exp ? " ({$exp})" : "") . ($name ? " - Titular: {$name}" : "");
+        }
+
+        if ($pagoTipo === 'paypal') {
+            $mail = trim((string)($_POST['paypal_email'] ?? ''));
+            $pagoDetalle = $mail ? "PayPal: {$mail}" : "PayPal";
+        }
+
+        if ($pagoTipo === 'transferencia') {
+            $ref = trim((string)($_POST['transfer_ref'] ?? ''));
+            $pagoDetalle = $ref ? "Transferencia: {$ref}" : "Transferencia";
+        }
+
+        // ---------- BBDD ----------
         $pdo = conexion::conexionBBDD();
         $pdo->beginTransaction();
 
@@ -46,15 +72,19 @@ class PedidoController
                 throw new Exception("Total inválido.");
             }
 
-            // Crear pedido
+            // Crear pedido con estado + pago simulado
+            // Si NO tienes metodo_pago en tu tabla, quita esa columna del INSERT.
             $stmt = $pdo->prepare("
-                INSERT INTO orders (user_id, precio_total, metodo_pago)
-                VALUES (:uid, :total, :metodo)
+                INSERT INTO orders (user_id, precio_total, metodo_pago, estado, pago_tipo, pago_detalle)
+                VALUES (:uid, :total, :metodo, :estado, :pago_tipo, :pago_detalle)
             ");
             $stmt->execute([
                 ':uid' => $userId,
                 ':total' => $total,
-                ':metodo' => $metodo
+                ':metodo' => $pagoTipo,
+                ':estado' => 'pendiente',
+                ':pago_tipo' => $pagoTipo,
+                ':pago_detalle' => $pagoDetalle
             ]);
 
             $orderId = (int)$pdo->lastInsertId();
@@ -68,7 +98,6 @@ class PedidoController
 
                 if ($pid <= 0 || $cant <= 0 || $precioUnit < 0) continue;
 
-                // 1) Descontar stock de forma segura
                 if ($type === 'book') {
                     $upd = $pdo->prepare("
                         UPDATE books
@@ -76,7 +105,6 @@ class PedidoController
                         WHERE book_id = :id AND stock >= :c
                     ");
                     $upd->execute([':c' => $cant, ':id' => $pid]);
-
                     if ($upd->rowCount() === 0) {
                         throw new Exception("Stock insuficiente para el libro (ID {$pid}).");
                     }
@@ -87,13 +115,11 @@ class PedidoController
                         WHERE product_id = :id AND stock >= :c
                     ");
                     $upd->execute([':c' => $cant, ':id' => $pid]);
-
                     if ($upd->rowCount() === 0) {
                         throw new Exception("Stock insuficiente para el producto (ID {$pid}).");
                     }
                 }
 
-                // 2) Insertar línea de pedido SOLO si el stock se descontó bien
                 $stmt = $pdo->prepare("
                     INSERT INTO order_items
                     (order_id, product_type, product_id, cantidad, precio_unitario)
@@ -110,12 +136,10 @@ class PedidoController
 
             $pdo->commit();
 
-            // Vaciar carrito de sesión (el de localStorage lo vacías en PedidoOk.php)
             unset($_SESSION['carrito']);
 
             header("Location: /pedido/ok");
             exit;
-
         } catch (Exception $e) {
             $pdo->rollBack();
             $_SESSION['flash'] = ['type' => 'error', 'msg' => $e->getMessage()];
@@ -142,9 +166,9 @@ class PedidoController
 
         $pdo = conexion::conexionBBDD();
 
-        // OJO: tu tabla no tiene created_at (ya lo comprobaste)
+        // Incluimos estado + pago_detalle
         $stmt = $pdo->prepare("
-            SELECT order_id, precio_total, metodo_pago
+            SELECT order_id, precio_total, metodo_pago, estado, pago_detalle
             FROM orders
             WHERE user_id = :uid
             ORDER BY order_id DESC
@@ -152,7 +176,6 @@ class PedidoController
         $stmt->execute([':uid' => $userId]);
         $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Cargar vista
         $view = __DIR__ . '/../VIEW/MisPedidos.php';
         if (!file_exists($view)) {
             http_response_code(500);
@@ -162,5 +185,3 @@ class PedidoController
         require $view;
     }
 }
-
- 

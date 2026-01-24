@@ -12,13 +12,14 @@ if (!isset($_SESSION['usuario'])) {
 $pdo = conexion::conexionBBDD();
 $uid = $_SESSION['usuario']['id'];
 
-$pedidos = $pdo->prepare("
-  SELECT * FROM orders
+$pedidosStmt = $pdo->prepare("
+  SELECT *
+  FROM orders
   WHERE user_id = :id
   ORDER BY fecha_pedido DESC
 ");
-$pedidos->execute([':id' => $uid]);
-$pedidos = $pedidos->fetchAll(PDO::FETCH_ASSOC);
+$pedidosStmt->execute([':id' => $uid]);
+$pedidos = $pedidosStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <main class="page">
@@ -36,16 +37,20 @@ $pedidos = $pedidos->fetchAll(PDO::FETCH_ASSOC);
                         <th>Fecha</th>
                         <th>Total</th>
                         <th>Pago</th>
+                        <th>Estado</th>
+                        <th>Detalle pago</th>
                     </tr>
                 </thead>
                 <tbody>
 
                     <?php foreach ($pedidos as $p): ?>
                         <tr>
-                            <td>#<?= $p['order_id'] ?></td>
-                            <td><?= $p['fecha_pedido'] ?></td>
-                            <td><?= number_format($p['precio_total'], 2) ?> €</td>
-                            <td><?= $p['metodo_pago'] ?></td>
+                            <td>#<?= (int)$p['order_id'] ?></td>
+                            <td><?= htmlspecialchars($p['fecha_pedido'] ?? '-') ?></td>
+                            <td><?= number_format((float)$p['precio_total'], 2) ?> €</td>
+                            <td><?= htmlspecialchars($p['metodo_pago'] ?? ($p['pago_tipo'] ?? '-')) ?></td>
+                            <td><?= htmlspecialchars($p['estado'] ?? 'pendiente') ?></td>
+                            <td><?= htmlspecialchars($p['pago_detalle'] ?? '-') ?></td>
                         </tr>
                     <?php endforeach; ?>
 
