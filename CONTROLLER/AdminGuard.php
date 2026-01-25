@@ -1,13 +1,21 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+class AdminGuard
+{
+    public static function check()
+    {
+        if (session_status() === PHP_SESSION_NONE) session_start();
 
-if (
-    !isset($_SESSION['usuario']) ||
-    !is_array($_SESSION['usuario']) ||
-    ($_SESSION['usuario']['rol'] ?? '') !== 'admin'
-) {
-    header("Location: /login");
-    exit;
+        // Tu sesión real usa $_SESSION['usuario']
+        if (!isset($_SESSION['usuario'])) {
+            header("Location: /login");
+            exit;
+        }
+
+        $rol = $_SESSION['usuario']['rol'] ?? 'cliente';
+        if ($rol !== 'admin') {
+            http_response_code(403);
+            echo "Acceso denegado";
+            exit;
+        }
+    }
 }

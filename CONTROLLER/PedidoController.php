@@ -12,7 +12,6 @@ class PedidoController
             exit;
         }
 
-        // Carrito en sesión (tu checkout debe pasarlo a sesión)
         $carrito = $_SESSION['carrito'] ?? [];
         if (!$carrito) {
             $_SESSION['flash'] = ['type' => 'error', 'msg' => 'El carrito está vacío.'];
@@ -40,7 +39,6 @@ class PedidoController
             $exp  = trim((string)($_POST['card_exp'] ?? ''));
 
             $last4 = strlen($num) >= 4 ? substr($num, -4) : '----';
-            // NO guardamos CVV, NI el número completo
             $pagoDetalle = "Tarjeta ****{$last4}" . ($exp ? " ({$exp})" : "") . ($name ? " - Titular: {$name}" : "");
         }
 
@@ -72,8 +70,7 @@ class PedidoController
                 throw new Exception("Total inválido.");
             }
 
-            // Crear pedido con estado + pago simulado
-            // Si NO tienes metodo_pago en tu tabla, quita esa columna del INSERT.
+            // Crear pedido
             $stmt = $pdo->prepare("
                 INSERT INTO orders (user_id, precio_total, metodo_pago, estado, pago_tipo, pago_detalle)
                 VALUES (:uid, :total, :metodo, :estado, :pago_tipo, :pago_detalle)
@@ -99,22 +96,25 @@ class PedidoController
                 if ($pid <= 0 || $cant <= 0 || $precioUnit < 0) continue;
 
                 if ($type === 'book') {
+                    // IMPORTANTÍSIMO: no repetir :c dos veces -> :c1 y :c2
                     $upd = $pdo->prepare("
                         UPDATE books
-                        SET stock = stock - :c
-                        WHERE book_id = :id AND stock >= :c
+                        SET stock = stock - :c1
+                        WHERE book_id = :id AND stock >= :c2
                     ");
-                    $upd->execute([':c' => $cant, ':id' => $pid]);
+                    $upd->execute([':c1' => $cant, ':c2' => $cant, ':id' => $pid]);
+
                     if ($upd->rowCount() === 0) {
                         throw new Exception("Stock insuficiente para el libro (ID {$pid}).");
                     }
                 } else {
                     $upd = $pdo->prepare("
                         UPDATE other_products
-                        SET stock = stock - :c
-                        WHERE product_id = :id AND stock >= :c
+                        SET stock = stock - :c1
+                        WHERE product_id = :id AND stock >= :c2
                     ");
-                    $upd->execute([':c' => $cant, ':id' => $pid]);
+                    $upd->execute([':c1' => $cant, ':c2' => $cant, ':id' => $pid]);
+
                     if ($upd->rowCount() === 0) {
                         throw new Exception("Stock insuficiente para el producto (ID {$pid}).");
                     }
@@ -157,31 +157,6 @@ class PedidoController
             exit;
         }
 
-        $userId = (int)($_SESSION['usuario']['id'] ?? 0);
-        if ($userId <= 0) {
-            http_response_code(500);
-            echo "Sesión inválida.";
-            exit;
-        }
-
-        $pdo = conexion::conexionBBDD();
-
-        // Incluimos estado + pago_detalle
-        $stmt = $pdo->prepare("
-            SELECT order_id, precio_total, metodo_pago, estado, pago_detalle
-            FROM orders
-            WHERE user_id = :uid
-            ORDER BY order_id DESC
-        ");
-        $stmt->execute([':uid' => $userId]);
-        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $view = __DIR__ . '/../VIEW/MisPedidos.php';
-        if (!file_exists($view)) {
-            http_response_code(500);
-            echo "Falta la vista: VIEW/MisPedidos.php";
-            exit;
-        }
-        require $view;
+        require __DIR__ . '/../VIEW/MisPedidos.php';
     }
 }

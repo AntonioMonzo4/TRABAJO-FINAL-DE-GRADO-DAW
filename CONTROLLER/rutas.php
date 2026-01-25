@@ -275,6 +275,52 @@ switch ($ruta) {
         AuthController::actualizarPerfil();
         break;
 
+    // Admin panel
+    case 'admin':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/StockController.php';
+        StockController::panel();
+        break;
+
+    // Admin stock
+    case 'admin/stock':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/StockController.php';
+        StockController::stock();
+        break;
+
+    case 'admin/stock/guardar':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/StockController.php';
+        StockController::stockGuardar();
+        break;
+
+    // Admin pedidos
+    case 'admin/pedidos':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/StockController.php';
+        StockController::pedidos();
+        break;
+
+    case 'admin/pedidos/estado':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/StockController.php';
+        StockController::pedidoEstado();
+        break;
+
+
+    case 'admin/usuarios':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/UsuariosAdminController.php';
+        UsuariosAdminController::index();
+        break;
+
 
     case 'admin/stock/book': // POST editar libro
         require_once __DIR__ . '/AdminGuard.php';
