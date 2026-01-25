@@ -251,15 +251,7 @@ switch ($ruta) {
         AuthController::logout();
         break;
 
-    case 'admin':
-        require_once __DIR__ . '/AdminGuard.php';
-        cargarVista('admin/Dashboard.php');
-        break;
 
-    case 'admin/stock':
-        require_once __DIR__ . '/AdminGuard.php';
-        cargarVista('admin/Stock.php');
-        break;
     case 'pedido/crear':
         require_once __DIR__ . '/PedidoController.php';
         PedidoController::crear();
@@ -313,12 +305,10 @@ switch ($ruta) {
         StockController::pedidoEstado();
         break;
 
-
     case 'admin/usuarios':
         require_once __DIR__ . '/AdminGuard.php';
         AdminGuard::check();
-        require_once __DIR__ . '/UsuariosAdminController.php';
-        UsuariosAdminController::index();
+        cargarVista('admin/Usuarios.php');
         break;
 
 
