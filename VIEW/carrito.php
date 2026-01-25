@@ -1,6 +1,12 @@
 <?php
 require_once __DIR__ . '/header.php';
 
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// Flash (para ver por qué vuelve del pedido al carrito)
+$flash = $_SESSION['flash'] ?? null;
+if ($flash) unset($_SESSION['flash']);
+
 $items = [
     ['label' => 'Inicio', 'url' => '/home'],
     ['label' => 'Carrito', 'url' => null]
@@ -12,6 +18,12 @@ require_once __DIR__ . '/partials/breadcrumb.php';
     <section class="container">
 
         <h1>Carrito</h1>
+
+        <?php if ($flash && !empty($flash['msg'])): ?>
+            <div style="margin:10px 0;padding:12px;border-radius:10px; background: <?= ($flash['type'] ?? '') === 'error' ? '#ffe8e8' : '#e9f8ef' ?>;">
+                <?= htmlspecialchars($flash['msg']) ?>
+            </div>
+        <?php endif; ?>
 
         <p id="carrito-count" class="muted" style="margin: 0 0 20px;"></p>
 
@@ -94,6 +106,5 @@ require_once __DIR__ . '/partials/breadcrumb.php';
 
 <script src="/VIEW/js/carrito.js"></script>
 <script src="/VIEW/js/carrito_pagina.js"></script>
-
 
 <?php require_once __DIR__ . '/footer.php'; ?>
