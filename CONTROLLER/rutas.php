@@ -311,6 +311,20 @@ switch ($ruta) {
         cargarVista('admin/Usuarios.php');
         break;
 
+    case 'admin/usuarios/guardar':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/UsuariosAdminController.php';
+        UsuariosAdminController::guardar();
+        break;
+
+    case 'admin/usuarios/eliminar':
+        require_once __DIR__ . '/AdminGuard.php';
+        AdminGuard::check();
+        require_once __DIR__ . '/UsuariosAdminController.php';
+        UsuariosAdminController::eliminar();
+        break;
+
 
     case 'admin/stock/book': // POST editar libro
         require_once __DIR__ . '/AdminGuard.php';
