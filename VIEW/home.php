@@ -20,7 +20,7 @@ try {
         SELECT DISTINCT genero_literario 
         FROM books 
         WHERE genero_literario IS NOT NULL 
-        LIMIT 6
+        
     ");
     $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
