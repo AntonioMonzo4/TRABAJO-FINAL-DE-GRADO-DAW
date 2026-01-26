@@ -112,7 +112,7 @@ $carritoCount = $_SESSION['carrito_count'] ?? 0;
         <!-- HEADER INFERIOR -->
         <div class="lowHeader">
             <div class="buscador">
-                <p>Bienvenido a Los círculos de Atena tu espacio seguro para la lectura y el conocimiento</p>
+                <p>Descubre un mundo de conocimiento y lectura.</p>
             </div>
 
             <!-- CARRITO (desktop) -->

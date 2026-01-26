@@ -34,7 +34,6 @@ try {
     <section class="hero hero-home">
         <div class="container hero-content">
             <h1>Los Círculos de Atenea</h1>
-            <p>Descubre un mundo de conocimiento y lectura.</p>
             <div class="hero-buttons">
                 <a href="/books" class="btn btn-primary">Explorar libros</a>
                 <a href="/about" class="btn btn-secondary">Conócenos</a>
@@ -46,7 +45,7 @@ try {
     <?php if ($libros_destacados): ?>
         <section class="destacados">
             <div class="container">
-                <h2>Libros destacados</h2>
+              
                 <section class="carousel-container">
                     <div class="container">
                         <h2 class="carousel-title">Libros destacados</h2>
@@ -111,20 +110,15 @@ try {
                     <p>“Servicio impecable y gran catálogo.”</p>
                     <strong>Carlos Ruiz</strong>
                 </div>
+                  <div class="testimonio-card">
+                    <p>“Gran variedad para saciar mi hambre de lectura.”</p>
+                    <strong>Pepe Navarro</strong>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- NEWSLETTER -->
-    <section class="newsletter">
-        <div class="container">
-            <h2>Mantente informado</h2>
-            <form method="post" action="/newsletter">
-                <input type="email" name="email" required placeholder="Tu email">
-                <button class="btn btn-primary">Suscribirse</button>
-            </form>
-        </div>
-    </section>
+  
 
 </main>
 

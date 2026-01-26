@@ -64,6 +64,11 @@ a {
     transition: var(--transicion-rapida);
 }
 
+.mensaje_index{
+    font-size: 1.2rem;
+    margin-bottom: var(--espacio-lg);
+    color: var(--color-secundario);
+}
 ul {
     list-style: none;
 }
