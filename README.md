@@ -1,153 +1,116 @@
-📚 Círculos de Atenea — Tienda Online de Libros
 
-Proyecto de Tienda Ecommerce desarrollado como Trabajo de Fin de Grado (DAW) por Antonio Monzó.
+# 📚 Círculos de Atenea — Tienda Online de Libros
 
-Se trata de una librería online completa con sistema de usuarios, carrito de compra, gestión de pedidos y panel de administración, desarrollada desde cero en PHP + MySQL con un router propio y una arquitectura tipo MVC.
+Proyecto de **Tienda Ecommerce** desarrollado como **Trabajo de Fin de Grado (DAW)** por **Antonio Monzó**.
 
-🚀 Funcionalidades principales
-👤 Usuarios
+Se trata de una **librería online completa** con sistema de usuarios, carrito de compra, gestión de pedidos y panel de administración, desarrollada desde cero en PHP y MySQL siguiendo un patrón MVC sencillo.
 
-Registro y login con contraseñas cifradas (password_hash)
+---
 
-Validaciones en cliente y servidor (regex)
+## 🚀 Funcionalidades principales
 
-Edición de perfil
+### 👤 Usuarios
+- Registro y login con contraseñas cifradas (`password_hash`)
+- Edición de perfil
+- Historial de pedidos
+- Sistema de roles: **cliente** y **administrador**
 
-Historial de pedidos
+### 🛒 Tienda
+- Listado de libros por categorías
+- Página de detalle de producto
+- Carrito de compra usando **LocalStorage**
+- Cálculo automático de totales
+- Simulación de proceso de compra (checkout)
 
-Sistema de roles: cliente y administrador
+### 📦 Pedidos
+- Creación de pedidos desde el carrito
+- Control de stock en servidor (no permite comprar más de lo disponible)
+- Estados de pedido (pendiente, procesando, enviado, etc.)
+- Vista de pedidos del usuario
 
-🛒 Tienda
+### 🔐 Panel de Administración
+- Acceso solo para administradores
+- Gestión de:
+  - Stock de productos
+  - Usuarios
+  - Pedidos
+- Modificación de estado de pedidos
+- Edición de roles de usuario
 
-Listado de libros por categorías
+### 📄 Páginas informativas
+- Sobre nosotros
+- Contacto
+- Aviso legal
+- Política de privacidad
+- Cookies
 
-Página de detalle de producto
+---
 
-Carrito de compra usando LocalStorage
+## 🧱 Arquitectura del proyecto
 
-Cálculo automático de totales
-
-Eliminación de productos en tiempo real
-
-Simulación de proceso de compra (checkout)
-
-📦 Pedidos
-
-Creación de pedidos desde el carrito
-
-Control de stock en servidor (no permite comprar más de lo disponible)
-
-El stock nunca puede quedar en negativo
-
-Estados de pedido (pendiente, procesando, enviado, finalizado)
-
-Vista de pedidos del usuario
-
-🔐 Panel de Administración
-
-Acceso solo para administradores
-
-Gestión completa de:
-
-Stock de productos
-
-Usuarios
-
-Pedidos
-
-Modificación de estado de pedidos
-
-Edición de roles de usuario
-
-📄 Páginas informativas
-
-Sobre nosotros
-
-Contacto
-
-Aviso legal
-
-Política de privacidad
-
-Cookies
-
-🧱 Arquitectura del proyecto
-
-Backend en PHP con router propio (rutas.php)
-
-Base de datos MySQL / MariaDB
-
-Frontend en HTML + CSS + JavaScript
-
-Carrito gestionado en LocalStorage
-
-Patrón tipo MVC
-
-Estructura principal del proyecto:
-
+- Backend en **PHP** con router propio (`rutas.php`)
+- Base de datos **MySQL**
+- Frontend en **HTML + CSS + JavaScript**
+- Carrito gestionado en **LocalStorage**
+- Patrón tipo **MVC**:
 /CONTROLLER
-/MODEL
 /VIEW
-  /admin
-  /static
-  /partials
-  /js
-  /css
+/MODEL
+/VIEW/admin
+/VIEW/static
 
-🛠️ Tecnologías utilizadas
+---
 
-PHP 7+
+## 🛠️ Tecnologías utilizadas
 
-MySQL / MariaDB
+- PHP 7+
+- MySQL / MariaDB
+- JavaScript (Vanilla)
+- HTML5
+- CSS3
+- Git / GitHub
+- Hostinger (hosting + dominio)
 
-JavaScript (Vanilla)
+---
 
-HTML5
+## ⚙️ Instalación en local
 
-CSS3
+1. Clonar el repositorio:
+   
+ git clone https://github.com/tuusuario/tu-repo.git
 
-Git / GitHub
 
-Hostinger (hosting)
+2. Importar la base de datos desde phpMyAdmin:
 
-⚙️ Instalación en local
+Archivo .sql incluido en el proyecto
 
-Clonar el repositorio:
+3. Configurar la conexión a la BD en:
 
-git clone https://github.com/tuusuario/tu-repo.git
+4. Apuntar el servidor (XAMPP, Laragon, etc.) al directorio del proyecto
 
-Importar la base de datos desde phpMyAdmin usando el .sql del proyecto.
-
-Configurar la conexión a la BD en:
-
-/MODEL/conexion.php
-
-Arrancar el servidor (XAMPP, Laragon, etc.) y apuntar al proyecto.
-
-Acceder desde el navegador:
+5. Acceder desde el navegador:
 
 http://localhost/tu-proyecto
 
 🔑 Usuarios de prueba
 
-Puedes crear usuarios desde el formulario de registro.
+Puedes crear usuarios desde el registro.
 
-Para convertir un usuario en administrador:
+Para crear un administrador, cambia el campo rol en la base de datos:
 
-UPDATE users SET rol = 'admin' WHERE email = 'tucorreo@ejemplo.com
-';
+UPDATE users SET rol = 'admin' WHERE email = 'tucorreo@ejemplo.com';
 
-🧠 Qué demuestra este proyecto
+🧠 Lo que demuestra este proyecto
 
-Arquitectura web completa desde cero
+Arquitectura web completa
 
 CRUDs complejos
 
-Sistema de login y roles
+Autenticación y roles
 
-Seguridad básica (hash de contraseñas, validaciones, control de stock)
+Seguridad básica (hash de contraseñas, validaciones)
 
-Gestión real de pedidos
+Gestión de stock real
 
 Lógica de negocio en servidor
 
@@ -158,18 +121,17 @@ Sistema de rutas propio
 📌 Estado del proyecto
 
 🟢 Funcional y en desarrollo continuo
+🔧 Se pueden añadir en el futuro:
 
-Mejoras futuras posibles:
+Pasarela de pago real
 
-Pasarela de pago real (Stripe / PayPal)
+Envíos reales
 
-Generación de facturas en PDF
+Facturas en PDF
 
 Sistema de reseñas
 
 Buscador avanzado
-
-Panel de estadísticas
 
 👨‍💻 Autor
 
@@ -179,3 +141,6 @@ Proyecto realizado como Trabajo de Fin de Grado (DAW)
 📄 Licencia
 
 Este proyecto es de uso educativo y demostrativo.
+
+
+
