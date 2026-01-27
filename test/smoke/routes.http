@@ -1,0 +1,20 @@
+### Home
+GET https://circulosdeatenea.com/home
+
+### Tienda
+GET https://circulosdeatenea.com/tienda
+
+### Carrito
+GET https://circulosdeatenea.com/carrito
+
+### Login
+GET https://circulosdeatenea.com/login
+
+### Register
+GET https://circulosdeatenea.com/register
+
+### Checkout (debe cargar si hay sesión o permitir acceso según tu lógica)
+GET https://circulosdeatenea.com/checkout
+
+### Admin (debería redirigir si no eres admin)
+GET https://circulosdeatenea.com/admin
