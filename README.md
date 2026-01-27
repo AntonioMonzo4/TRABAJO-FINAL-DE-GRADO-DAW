@@ -1,22 +1,181 @@
-Trabajo de final de grado de DAW por Antonio Monzó
+📚 Círculos de Atenea — Tienda Online de Libros
 
-Descripción:
+Proyecto de Tienda Ecommerce desarrollado como Trabajo de Fin de Grado (DAW) por Antonio Monzó.
 
+Se trata de una librería online completa con sistema de usuarios, carrito de compra, gestión de pedidos y panel de administración, desarrollada desde cero en PHP + MySQL con un router propio y una arquitectura tipo MVC.
 
-Tienda Ecommerce especializada en vender libros (libreria) --> con carrito de compra y base de datos propia de la que sacar el inventario
+🚀 Funcionalidades principales
+👤 Usuarios
 
-Tecnologías utilizadas: 
+Registro y login con contraseñas cifradas (password_hash)
 
--Git/Github
+Validaciones en cliente y servidor (regex)
 
--Php
+Edición de perfil
 
--JS
+Historial de pedidos
 
--html/css
+Sistema de roles: cliente y administrador
 
--MYSQL
+🛒 Tienda
 
--Hostinger: bbdd y host + dominio
+Listado de libros por categorías
 
-PENDIENTE DE MODIFICACIONES 
+Página de detalle de producto
+
+Carrito de compra usando LocalStorage
+
+Cálculo automático de totales
+
+Eliminación de productos en tiempo real
+
+Simulación de proceso de compra (checkout)
+
+📦 Pedidos
+
+Creación de pedidos desde el carrito
+
+Control de stock en servidor (no permite comprar más de lo disponible)
+
+El stock nunca puede quedar en negativo
+
+Estados de pedido (pendiente, procesando, enviado, finalizado)
+
+Vista de pedidos del usuario
+
+🔐 Panel de Administración
+
+Acceso solo para administradores
+
+Gestión completa de:
+
+Stock de productos
+
+Usuarios
+
+Pedidos
+
+Modificación de estado de pedidos
+
+Edición de roles de usuario
+
+📄 Páginas informativas
+
+Sobre nosotros
+
+Contacto
+
+Aviso legal
+
+Política de privacidad
+
+Cookies
+
+🧱 Arquitectura del proyecto
+
+Backend en PHP con router propio (rutas.php)
+
+Base de datos MySQL / MariaDB
+
+Frontend en HTML + CSS + JavaScript
+
+Carrito gestionado en LocalStorage
+
+Patrón tipo MVC
+
+Estructura principal del proyecto:
+
+/CONTROLLER
+/MODEL
+/VIEW
+  /admin
+  /static
+  /partials
+  /js
+  /css
+
+🛠️ Tecnologías utilizadas
+
+PHP 7+
+
+MySQL / MariaDB
+
+JavaScript (Vanilla)
+
+HTML5
+
+CSS3
+
+Git / GitHub
+
+Hostinger (hosting)
+
+⚙️ Instalación en local
+
+Clonar el repositorio:
+
+git clone https://github.com/tuusuario/tu-repo.git
+
+Importar la base de datos desde phpMyAdmin usando el .sql del proyecto.
+
+Configurar la conexión a la BD en:
+
+/MODEL/conexion.php
+
+Arrancar el servidor (XAMPP, Laragon, etc.) y apuntar al proyecto.
+
+Acceder desde el navegador:
+
+http://localhost/tu-proyecto
+
+🔑 Usuarios de prueba
+
+Puedes crear usuarios desde el formulario de registro.
+
+Para convertir un usuario en administrador:
+
+UPDATE users SET rol = 'admin' WHERE email = 'tucorreo@ejemplo.com
+';
+
+🧠 Qué demuestra este proyecto
+
+Arquitectura web completa desde cero
+
+CRUDs complejos
+
+Sistema de login y roles
+
+Seguridad básica (hash de contraseñas, validaciones, control de stock)
+
+Gestión real de pedidos
+
+Lógica de negocio en servidor
+
+Frontend funcional sin frameworks
+
+Sistema de rutas propio
+
+📌 Estado del proyecto
+
+🟢 Funcional y en desarrollo continuo
+
+Mejoras futuras posibles:
+
+Pasarela de pago real (Stripe / PayPal)
+
+Generación de facturas en PDF
+
+Sistema de reseñas
+
+Buscador avanzado
+
+Panel de estadísticas
+
+👨‍💻 Autor
+
+Antonio Monzó
+Proyecto realizado como Trabajo de Fin de Grado (DAW)
+
+📄 Licencia
+
+Este proyecto es de uso educativo y demostrativo.
