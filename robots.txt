@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /login
+Disallow: /register
+Disallow: /carrito
+Disallow: /index.php
+Disallow: /*?
+
+Allow: /
+
+Sitemap: https://circulosdeatenea.com/sitemap.xml

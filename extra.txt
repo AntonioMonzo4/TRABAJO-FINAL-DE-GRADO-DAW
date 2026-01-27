@@ -1,0 +1,130 @@
+UPDATE users
+SET rol = 'admin'
+WHERE email = 'admin@circulosdeatenea.com';
+
+
+UPDATE users
+SET rol = 'admin'
+WHERE email = 'admin@circulosdeatenea.com';
+
+INSERT INTO other_products
+(category_id, nombre, descripcion, precio, imagen, stock)
+VALUES
+(1, 'Taza Atenea',
+ 'Taza cerámica con el logo de Los Círculos de Atenea',
+ 9.95, 'taza_atenea.jpg', 40),
+
+(1, 'Camiseta Atenea',
+ 'Camiseta algodón talla única',
+ 14.90, 'camiseta_atenea.jpg', 25),
+
+(2, 'Marcapáginas metálico',
+ 'Marcapáginas grabado con símbolos clásicos',
+ 4.50, 'marcapaginas.jpg', 100),
+
+(3, 'Bolsa de tela',
+ 'Bolsa reutilizable para libros',
+ 6.99, 'bolsa_tela.jpg', 60);
+
+INSERT INTO categories (nombre) VALUES
+('Merchandising'),
+('Papelería'),
+('Regalos');
+
+INSERT INTO other_products (category_id, nombre, descripcion, precio, imagen, stock) VALUES
+(1, 'Tote bag Atenea', 'Bolsa de tela resistente para libros', 7.95, 'tote_atenea.jpg', 40),
+(1, 'Taza Atenea', 'Taza cerámica con logo', 9.95, 'taza_atenea.jpg', 30),
+(1, 'Camiseta Atenea', 'Camiseta de algodón', 14.90, 'camiseta_atenea.jpg', 25),
+(2, 'Pack marcapáginas', 'Pack de 3 marcapáginas', 5.50, 'pack_marcapaginas.jpg', 100),
+(2, 'Cuaderno A5', 'Cuaderno de notas A5', 4.20, 'cuaderno_a5.jpg', 80),
+(2, 'Bolígrafo metálico', 'Bolígrafo con grabado', 3.60, 'boligrafo_metal.jpg', 120),
+(3, 'Vela aromática', 'Vela para acompañar lectura', 8.90, 'vela.jpg', 35),
+(3, 'Caja regalo lectora', 'Caja con accesorios de lectura', 19.90, 'caja_regalo.jpg', 15);
+
+
+INSERT INTO users 
+(nombre, apellidos, email, fecha_nacimiento, telefono, genero, password_hash, rol)
+VALUES
+(
+  'Administrador',
+  'Principal',
+  'admin@tuweb.com',
+  NULL,
+  '',
+  '',
+  'PEGA_AQUI_EL_HASH_GENERADO',
+  'admin'
+);
+
+INSERT INTO users 
+(nombre, apellidos, email, fecha_nacimiento, telefono, genero, password_hash, rol)
+VALUES
+(
+  'Administrador',
+  'Principal',
+  'admin@tuweb.com',
+  NULL,
+  '',
+  '',
+  '$2y$10$uF3sKJd9q8JkL...etc...',
+  'admin'
+);
+
+SELECT email, rol, LENGTH(password_hash) AS len, LEFT(password_hash, 4) AS pref
+FROM users;
+
+
+INSERT INTO `books` (`titulo`, `descripcion`, `autor`, `precio`, `imagen`, `genero_literario`, `stock`) VALUES
+('Dune', 'Épica de ciencia ficción sobre poder, ecología y destino en Arrakis.', 'Frank Herbert', 18.99, 'dune.png', 'Ciencia Ficción', 40),
+('Fundación', 'Saga sobre el auge y caída de imperios guiada por la psicohistoria.', 'Isaac Asimov', 14.99, 'fundacion.png', 'Ciencia Ficción', 35),
+('Neuromante', 'Ciberpunk clásico: hackers, IA y corporaciones en un futuro oscuro.', 'William Gibson', 13.99, 'neuromante.png', 'Ciencia Ficción', 25),
+('El problema de los tres cuerpos', 'Contacto extraterrestre y ciencia extrema en un thriller cósmico.', 'Liu Cixin', 19.99, 'el-problema-de-los-tres-cuerpos.png', 'Ciencia Ficción', 28),
+('La mano izquierda de la oscuridad', 'Diplomacia y género en un planeta de clima implacable.', 'Ursula K. Le Guin', 15.99, 'la-mano-izquierda-de-la-oscuridad.png', 'Ciencia Ficción', 18),
+
+('El nombre del viento', 'Un músico y mago cuenta su leyenda entre luces y sombras.', 'Patrick Rothfuss', 21.99, 'el-nombre-del-viento.png', 'Fantasía', 30),
+('El camino de los reyes', 'Tormentas, juramentos y guerras en un mundo roto.', 'Brandon Sanderson', 24.99, 'el-camino-de-los-reyes.png', 'Fantasía', 22),
+('El imperio final (Mistborn)', 'Revolución y magia basada en metales contra un tirano inmortal.', 'Brandon Sanderson', 18.99, 'mistborn-el-imperio-final.png', 'Fantasía', 26),
+('La quinta estación', 'Un cataclismo cambia el mundo: magia, poder y supervivencia.', 'N. K. Jemisin', 19.49, 'la-quinta-estacion.png', 'Fantasía', 16),
+('El hobbit', 'Aventura clásica con dragones, tesoros y un viaje inesperado.', 'J.R.R. Tolkien', 13.99, 'el-hobbit.png', 'Fantasía', 50),
+
+('Perdida (Gone Girl)', 'Una desaparición mediática destapa mentiras y giros brutales.', 'Gillian Flynn', 16.49, 'perdida.png', 'Thriller', 20),
+('El psicoanalista', 'Un juego mental mortal obliga a reinventarse para sobrevivir.', 'John Katzenbach', 15.99, 'el-psicoanalista.png', 'Thriller', 22),
+('La chica del dragón tatuado', 'Investigación y secretos familiares con una hacker inolvidable.', 'Stieg Larsson', 17.99, 'la-chica-del-dragon-tatuado.png', 'Thriller', 18),
+('El silencio de los corderos', 'Un caso imposible y un asesor inquietante: Hannibal Lecter.', 'Thomas Harris', 14.99, 'el-silencio-de-los-corderos.png', 'Thriller', 25),
+('El código Da Vinci', 'Misterio y símbolos en una carrera por una verdad oculta.', 'Dan Brown', 14.49, 'el-codigo-da-vinci.png', 'Thriller', 30),
+
+('El sabueso de los Baskerville', 'Holmes investiga una maldición y un misterio en los páramos.', 'Arthur Conan Doyle', 11.49, 'el-sabueso-de-los-baskerville.png', 'Misterio', 24),
+('La piedra lunar', 'Una joya robada y un caso pionero en la novela detectivesca.', 'Wilkie Collins', 12.49, 'la-piedra-lunar.png', 'Misterio', 14),
+('El nombre de la rosa', 'Crímenes en una abadía: fe, poder y bibliotecas peligrosas.', 'Umberto Eco', 16.99, 'el-nombre-de-la-rosa.png', 'Misterio', 20),
+('Sherlock Holmes: Estudio en escarlata', 'El primer caso de Holmes y Watson en Londres.', 'Arthur Conan Doyle', 10.99, 'estudio-en-escarlata.png', 'Misterio', 28),
+('La verdad sobre el caso Harry Quebert', 'Un escritor investiga un asesinato y desvela un gran secreto.', 'Joël Dicker', 19.99, 'harry-quebert.png', 'Misterio', 18),
+
+('Cien años de soledad', 'Realismo mágico y saga familiar en Macondo.', 'Gabriel García Márquez', 16.99, 'cien-anos-de-soledad.png', 'Clásico', 26),
+('1984', 'Distopía sobre vigilancia total y control del pensamiento.', 'George Orwell', 12.99, '1984.png', 'Clásico', 40),
+('Un mundo feliz', 'Distopía de placer programado y libertad perdida.', 'Aldous Huxley', 12.49, 'un-mundo-feliz.png', 'Clásico', 34),
+('Fahrenheit 451', 'Libros prohibidos y un bombero que empieza a dudar.', 'Ray Bradbury', 11.99, 'fahrenheit-451.png', 'Clásico', 32),
+('Crimen y castigo', 'Culpa, moral y redención tras un crimen que lo cambia todo.', 'Fiódor Dostoievski', 14.99, 'crimen-y-castigo.png', 'Clásico', 16),
+
+('Sapiens', 'Historia breve y provocadora de la humanidad.', 'Yuval Noah Harari', 20.99, 'sapiens.png', 'Ensayo', 22),
+('Pensar rápido, pensar despacio', 'Sesgos y dos sistemas de pensamiento explicados con claridad.', 'Daniel Kahneman', 19.99, 'pensar-rapido-pensar-despacio.png', 'Ensayo', 18),
+('Una breve historia de casi todo', 'Ciencia explicada con humor y asombro, de átomos a galaxias.', 'Bill Bryson', 18.49, 'una-breve-historia-de-casi-todo.png', 'Ensayo', 14),
+('El hombre en busca de sentido', 'Reflexión sobre la vida y el sentido desde la experiencia límite.', 'Viktor E. Frankl', 12.99, 'el-hombre-en-busca-de-sentido.png', 'Ensayo', 28),
+('El poder de los hábitos', 'Cómo se forman hábitos y cómo cambiarlos de forma práctica.', 'Charles Duhigg', 16.99, 'el-poder-de-los-habitos.png', 'Ensayo', 20),
+
+('Los pilares de la Tierra', 'Intrigas y construcción de una catedral en la Edad Media.', 'Ken Follett', 22.99, 'los-pilares-de-la-tierra.png', 'Histórica', 18),
+('La catedral del mar', 'Ambición, justicia y supervivencia en la Barcelona medieval.', 'Ildefonso Falcones', 19.99, 'la-catedral-del-mar.png', 'Histórica', 16),
+('Yo, Claudio', 'Roma imperial narrada con ironía y conspiraciones.', 'Robert Graves', 17.49, 'yo-claudio.png', 'Histórica', 12),
+('Memorias de Adriano', 'Meditación íntima de un emperador sobre poder y tiempo.', 'Marguerite Yourcenar', 16.49, 'memorias-de-adriano.png', 'Histórica', 10),
+('El médico', 'Viaje, ciencia y aventura en una época peligrosa.', 'Noah Gordon', 18.99, 'el-medico.png', 'Histórica', 20),
+
+('Jane Eyre', 'Independencia y amor en una historia intensa y gótica.', 'Charlotte Brontë', 12.99, 'jane-eyre.png', 'Romance', 18),
+('Yo antes de ti', 'Relación que transforma dos vidas con emociones a flor de piel.', 'Jojo Moyes', 14.99, 'yo-antes-de-ti.png', 'Romance', 24),
+('Los puentes de Madison', 'Un encuentro breve que marca para siempre.', 'Robert James Waller', 11.99, 'los-puentes-de-madison.png', 'Romance', 16),
+('Bajo la misma estrella', 'Amor juvenil frente a la adversidad con humor y ternura.', 'John Green', 13.99, 'bajo-la-misma-estrella.png', 'Romance', 22),
+('El cuaderno de Noah', 'Recuerdos y amor persistente a través del tiempo.', 'Nicholas Sparks', 12.99, 'el-cuaderno-de-noah.png', 'Romance', 20),
+
+('Los juegos del hambre', 'Competición televisada en una distopía de control y rebeldía.', 'Suzanne Collins', 13.99, 'los-juegos-del-hambre.png', 'Juvenil', 35),
+('Harry Potter y la piedra filosofal', 'Inicio de una aventura mágica en Hogwarts.', 'J.K. Rowling', 14.99, 'harry-potter-1.png', 'Juvenil', 40),
+('Percy Jackson: El ladrón del rayo', 'Mitología griega en clave moderna con acción y humor.', 'Rick Riordan', 12.99, 'percy-jackson-1.png', 'Juvenil', 30),
+('Divergente', 'Elecciones, facciones y una protagonista que rompe el sistema.', 'Veronica Roth', 12.49, 'divergente.png', 'Juvenil', 26),
+('El corredor del laberinto', 'Un misterio mortal en un entorno sin recuerdos.', 'James Dashner', 12.99, 'el-corredor-del-laberinto.png', 'Juvenil', 24);
