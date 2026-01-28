@@ -3,8 +3,10 @@
 require_once __DIR__ . '/bootstrap.php';
 
 $tests = glob(__DIR__ . '/test_*.php');
+sort($tests);
 
 $ok = 0; $fail = 0;
+
 foreach ($tests as $file) {
     try {
         require $file;
@@ -15,6 +17,6 @@ foreach ($tests as $file) {
         $fail++;
     }
 }
-echo PHP_EOL . "RESULT: OK=$ok FAIL=$fail" . PHP_EOL;
 
+echo PHP_EOL . "RESULT: OK=$ok FAIL=$fail" . PHP_EOL;
 exit($fail > 0 ? 1 : 0);

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Carrito tests</title>
+</head>
+
+<body>
+    <pre id="out"></pre>
+
+    <script src="/VIEW/js/carrito.js"></script>
+    <script>
+        const out = document.getElementById('out');
+        function log(s) { out.textContent += s + "\n"; }
+        function assert(cond, msg) { if (!cond) throw new Error(msg); }
+
+        // OJO: si tu storage key no es "carrito", cambia aquí
+        localStorage.removeItem('carrito');
+
+        const cm = new CarritoManager();
+
+        cm.addItem({ id: 9999, titulo: "Libro test", precio: 10.00, imagen: "x.png" }, 1);
+
+        let c = cm.getCarrito();
+        assert(c.items && c.items.length === 1, "No añadió item");
+        assert(c.items[0].cantidad === 1, "Cantidad incorrecta");
+
+        cm.updateCantidad(9999, 2);
+        c = cm.getCarrito();
+        assert(c.items[0].cantidad === 2, "No actualiza cantidad");
+
+        const total = cm.getTotal();
+        assert(Math.abs(total - 20) < 0.01, "Total incorrecto: " + total);
+
+        cm.removeItem(9999);
+        c = cm.getCarrito();
+        assert(c.items.length === 0, "No eliminó item");
+        assert(cm.getTotal() === 0, "Total no vuelve a 0 al vaciar");
+
+        log("✅ OK - Carrito tests pasados");
+    </script>
+</body>
+
+</html>
