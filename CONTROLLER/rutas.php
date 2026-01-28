@@ -265,7 +265,7 @@ switch ($ruta) {
         cargarVista('Contacto.php');
         break;
 
-    
+
 
     case 'perfil/actualizar':
         require_once __DIR__ . '/AuthController.php';

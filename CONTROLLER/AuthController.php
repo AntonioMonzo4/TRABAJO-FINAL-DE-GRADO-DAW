@@ -1,6 +1,9 @@
 <?php
-// CONTROLLER/authController.php
-// Controlador para manejo de autenticación (login, registro, logout)
+/*
+Classe CONTROLLER/AuthController.php
+Controlador para manejar autenticación de usuarios: login, logout y registro.
+*/
+
 session_start(); // Iniciamos sesión para manejar datos de usuario
 
 require_once dirname(__DIR__) . '/MODEL/conexion.php'; // Incluimos la conexión a la base de datos usamos PDO y dirname(__DIR__) para ir a la carpeta padre por fallos de ruta
@@ -69,11 +72,14 @@ class AuthController
             // Limpio posible mensaje de error previo
             unset($_SESSION['login_error']);
 
+            // Redirigir a la página de inicio o dashboard
             header('Location: /home');
             exit;
+
+            // Capturamos errores de base de datos
         } catch (PDOException $e) {
 
-            // En entorno real: log y mensaje genérico
+            // En entorno real: log y mensaje genérico a usuario en este caso 
             error_log('Error login: ' . $e->getMessage());
             $_SESSION['login_error'] = 'Error interno. Inténtalo más tarde.';
             header('Location: /login');
@@ -219,7 +225,7 @@ class AuthController
 
             $user_id = (int)$pdo->lastInsertId();
 
-            // Guarda ambas claves para evitar líos (a veces usas id y otras user_id)
+            // Guarda ambas claves para evitar fallos en el código que use la sesión
             $_SESSION['usuario'] = [
                 'id'        => $user_id,
                 'user_id'   => $user_id,
@@ -241,6 +247,7 @@ class AuthController
         }
     }
 
+    //Función para actualizar el perfil del usuario
     public static function actualizarPerfil()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();

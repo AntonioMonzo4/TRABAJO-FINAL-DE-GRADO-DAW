@@ -1,15 +1,22 @@
 <?php
+/* CONTROLLER/StockController.php
+   Controlador para la gestión de stock y pedidos en el panel de administración.
+*/
 require_once __DIR__ . '/../MODEL/conexion.php';
 
+// Controlador para la gestión de stock y pedidos en el panel de administración
 class StockController
 {
+    // Mostrar panel de administración
     public static function panel()
     {
         require __DIR__ . '/../VIEW/admin/AdminPanel.php';
     }
 
+    // Mostrar y gestionar stock de productos
     public static function stock()
     {
+
         $pdo = conexion::conexionBBDD();
 
         $libros = $pdo->query("
@@ -27,6 +34,7 @@ class StockController
         require __DIR__ . '/../VIEW/admin/AdminStock.php';
     }
 
+    // Guardar cambios en stock y precios
     public static function stockGuardar()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
@@ -37,6 +45,7 @@ class StockController
         $precio = (float)($_POST['precio'] ?? 0);
         $stock  = (int)($_POST['stock'] ?? 0);
 
+        // Validar tipo y ID válidos y ajustar valores negativos
         if ($id <= 0) {
             $_SESSION['flash'] = ['type' => 'error', 'msg' => 'ID inválido'];
             header("Location: /admin/stock");
@@ -46,7 +55,11 @@ class StockController
         if ($precio < 0) $precio = 0;
         if ($stock < 0) $stock = 0;
 
+        // Preparar y ejecutar actualización según tipo de producto
         if ($tipo === 'book') {
+            // Actualizar libro
+            // :p es para precio, :s para stock, :id para book_id
+
             $stmt = $pdo->prepare("UPDATE books SET precio = :p, stock = :s WHERE book_id = :id");
         } else {
             $stmt = $pdo->prepare("UPDATE other_products SET precio = :p, stock = :s WHERE product_id = :id");
@@ -54,11 +67,14 @@ class StockController
 
         $stmt->execute([':p' => $precio, ':s' => $stock, ':id' => $id]);
 
+        // Mensaje de éxito y redirección
         $_SESSION['flash'] = ['type' => 'ok', 'msg' => 'Producto actualizado'];
         header("Location: /admin/stock");
         exit;
     }
 
+    // Mostrar y gestionar pedidos realizados
+    // Listado de pedidos
     public static function pedidos()
     {
         $pdo = conexion::conexionBBDD();
@@ -67,11 +83,12 @@ class StockController
             SELECT order_id, user_id, precio_total, metodo_pago, estado, pago_detalle, fecha_pedido
             FROM orders
             ORDER BY order_id DESC
-        ")->fetchAll(PDO::FETCH_ASSOC);
+        ")->fetchAll(PDO::FETCH_ASSOC);//devuelve un array indexado por el nombre de la columna 
 
         require __DIR__ . '/../VIEW/admin/AdminPedidos.php';
     }
 
+    // Cambiar estado de un pedido 
     public static function pedidoEstado()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();

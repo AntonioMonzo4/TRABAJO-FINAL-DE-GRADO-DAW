@@ -1,8 +1,13 @@
 <?php
+/* CONTROLLER/UsuariosAdminController.php
+   Clase para gestionar usuarios desde el panel de administración.
+*/
 require_once __DIR__ . '/../MODEL/conexion.php';
 
+// Controlador para gestionar usuarios desde el panel de administración
 class UsuariosAdminController
 {
+    // Gestionar usuarios - mostrar lista y guardar cambios
     public static function guardar()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
@@ -33,6 +38,7 @@ class UsuariosAdminController
         }
     }
 
+    // Eliminar usuario
     public static function eliminar()
     {
         if (session_status() === PHP_SESSION_NONE) session_start();
