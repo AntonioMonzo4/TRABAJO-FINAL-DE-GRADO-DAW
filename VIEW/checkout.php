@@ -34,7 +34,6 @@ if ($method === 'POST' && isset($_POST['cart_json'])) {
             if ($id === '' || ($tipo !== 'book' && $tipo !== 'other')) continue;
             if ($cantidad < 1) $cantidad = 1;
 
-            // Normalizamos a lo que usa PedidoController (type/id/cantidad/precio)
             $_SESSION['carrito'][] = [
                 'type' => $tipo,
                 'id' => $id,
@@ -65,82 +64,266 @@ foreach ($carritoSesion as $i) {
 
 <main class="page">
     <section class="container">
-        <h1>Checkout</h1>
-
-        <?php if ($flash && !empty($flash['msg'])): ?>
-            <div style="margin:10px 0;padding:12px;border-radius:10px; background: <?= ($flash['type'] ?? '') === 'error' ? '#ffe8e8' : '#e9f8ef' ?>;">
-                <?= htmlspecialchars($flash['msg']) ?>
+        <div class="checkout">
+            <div class="checkout__header">
+                <h1>Checkout</h1>
             </div>
-        <?php endif; ?>
 
-        <p><strong>Total a pagar:</strong> <?= number_format($total, 2) ?> €</p>
+            <?php if ($flash && !empty($flash['msg'])): ?>
+                <div class="alert <?= ($flash['type'] ?? '') === 'error' ? 'alert--error' : 'alert--ok' ?>">
+                    <?= htmlspecialchars($flash['msg']) ?>
+                </div>
+            <?php endif; ?>
 
-        <form method="post" action="/pedido/crear">
+            <div class="checkout__grid">
+                <!-- Columna principal -->
+                <div class="checkout__card">
+                    <h3>Pago</h3>
 
-            <label for="pago_tipo">Método de pago</label>
-            <select id="pago_tipo" name="pago_tipo">
-                <option value="tarjeta">Tarjeta</option>
-                <option value="paypal">PayPal</option>
-                <option value="transferencia">Transferencia</option>
-            </select>
+                    <form id="form-checkout" method="post" action="/pedido/crear" novalidate>
 
-            <div id="pago-tarjeta" style="margin-top:12px;">
-                <label>Titular</label>
-                <input type="text" name="card_name" placeholder="Nombre y apellidos">
+                        <div class="field">
+                            <label for="pago_tipo">Método de pago</label>
+                            <select id="pago_tipo" name="pago_tipo" class="input">
+                                <option value="tarjeta" selected>Tarjeta</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="transferencia">Transferencia</option>
+                            </select>
+                        </div>
 
-                <label>Número de tarjeta</label>
-                <input type="text" name="card_number" inputmode="numeric" placeholder="4111 1111 1111 1111">
+                        <!-- TARJETA -->
+                        <div id="pago-tarjeta" class="paybox">
+                            <div class="field">
+                                <label for="card_name">Titular</label>
+                                <input
+                                    id="card_name"
+                                    class="input"
+                                    type="text"
+                                    name="card_name"
+                                    placeholder="Nombre y apellidos"
+                                    autocomplete="cc-name"
+                                    inputmode="text"
+                                    data-required="1"
+                                    data-pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ ][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)+$">
+                                <small class="hint">Solo letras y espacios. Debe incluir nombre y apellido.</small>
+                            </div>
 
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <div>
-                        <label>Caducidad (MM/AA)</label>
-                        <input type="text" name="card_exp" placeholder="12/29" style="width:120px;">
-                    </div>
-                    <div>
-                        <label>CVV</label>
-                        <input type="password" name="card_cvv" placeholder="123" style="width:90px;">
-                    </div>
+                            <div class="field">
+                                <label for="card_number">Número de tarjeta</label>
+                                <input
+                                    id="card_number"
+                                    class="input"
+                                    type="text"
+                                    name="card_number"
+                                    placeholder="4111 1111 1111 1111"
+                                    autocomplete="cc-number"
+                                    inputmode="numeric"
+                                    data-required="1"
+                                    data-pattern="^[0-9 ]{13,23}$">
+                                <small class="hint">13–19 dígitos (puede incluir espacios).</small>
+                            </div>
+
+                            <div class="row">
+                                <div class="field">
+                                    <label for="card_exp">Caducidad (MM/AA)</label>
+                                    <input
+                                        id="card_exp"
+                                        class="input"
+                                        type="text"
+                                        name="card_exp"
+                                        placeholder="12/29"
+                                        autocomplete="cc-exp"
+                                        inputmode="numeric"
+                                        data-required="1"
+                                        data-pattern="^(0[1-9]|1[0-2])\/([0-9]{2})$">
+                                    <small class="hint">Formato MM/AA.</small>
+                                </div>
+
+                                <div class="field">
+                                    <label for="card_cvv">CVV</label>
+                                    <input
+                                        id="card_cvv"
+                                        class="input"
+                                        type="password"
+                                        name="card_cvv"
+                                        placeholder="123"
+                                        autocomplete="cc-csc"
+                                        inputmode="numeric"
+                                        maxlength="4"
+                                        data-required="1"
+                                        data-pattern="^[0-9]{3,4}$">
+                                    <small class="hint">3 o 4 dígitos.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PAYPAL -->
+                        <div id="pago-paypal" class="paybox" style="display:none;">
+                            <div class="field">
+                                <label for="paypal_email">Email de PayPal</label>
+                                <input
+                                    id="paypal_email"
+                                    class="input"
+                                    type="email"
+                                    name="paypal_email"
+                                    placeholder="tuemail@ejemplo.com"
+                                    autocomplete="email"
+                                    data-required="1"
+                                    data-pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$">
+                                <small class="hint">Introduce un email válido.</small>
+                            </div>
+                        </div>
+
+                        <!-- TRANSFERENCIA -->
+                        <div id="pago-transferencia" class="paybox" style="display:none;">
+                            <div class="field">
+                                <label for="transfer_ref">Código / Referencia de transferencia</label>
+                                <input
+                                    id="transfer_ref"
+                                    class="input"
+                                    type="text"
+                                    name="transfer_ref"
+                                    placeholder="REF-12345"
+                                    data-required="1"
+                                    data-pattern="^[A-Za-z0-9-]{4,30}$">
+                                <small class="hint">Obligatorio. Letras, números y guiones (4–30).</small>
+                            </div>
+                        </div>
+
+                        <div id="checkout-error" class="alert alert--error" style="display:none;"></div>
+
+                        <button class="btn btn-primary" type="submit">Confirmar pedido</button>
+                    </form>
                 </div>
 
-                <p class="muted" style="margin-top:8px;">
-                    Simulación: no se realiza ningún cargo real. No guardamos el CVV ni el número completo.
-                </p>
+                <!-- Resumen -->
+                <aside class="checkout__summary">
+                    <h3>Resumen</h3>
+                    <div class="sumrow">
+                        <span>Total a pagar</span>
+                        <strong><?= number_format($total, 2) ?> €</strong>
+                    </div>
+                </aside>
             </div>
-
-            <div id="pago-paypal" style="margin-top:12px; display:none;">
-                <label>Email de PayPal</label>
-                <input type="email" name="paypal_email" placeholder="tuemail@ejemplo.com">
-            </div>
-
-            <div id="pago-transferencia" style="margin-top:12px; display:none;">
-                <p class="muted">Simulación: el pedido quedará “pendiente”.</p>
-                <label>Referencia de transferencia (opcional)</label>
-                <input type="text" name="transfer_ref" placeholder="REF-12345">
-            </div>
-
-            <div style="margin-top:18px; display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="submit" class="btn btn-primary">Confirmar pedido</button>
-                <a href="/carrito" class="btn btn-secondary">Volver al carrito</a>
-            </div>
-        </form>
+        </div>
     </section>
 </main>
 
 <script>
-    const sel = document.getElementById('pago_tipo');
-    const tarjeta = document.getElementById('pago-tarjeta');
-    const paypal = document.getElementById('pago-paypal');
-    const transf = document.getElementById('pago-transferencia');
+    (function() {
+        const form = document.getElementById('form-checkout');
+        const sel = document.getElementById('pago_tipo');
+        const err = document.getElementById('checkout-error');
 
-    function updatePagoUI() {
-        const v = sel.value;
-        tarjeta.style.display = v === 'tarjeta' ? 'block' : 'none';
-        paypal.style.display = v === 'paypal' ? 'block' : 'none';
-        transf.style.display = v === 'transferencia' ? 'block' : 'none';
-    }
+        const boxes = {
+            tarjeta: document.getElementById('pago-tarjeta'),
+            paypal: document.getElementById('pago-paypal'),
+            transferencia: document.getElementById('pago-transferencia')
+        };
 
-    sel.addEventListener('change', updatePagoUI);
-    updatePagoUI();
+        function setBox(mode) {
+            // Mostrar/ocultar
+            Object.keys(boxes).forEach(k => {
+                boxes[k].style.display = (k === mode) ? '' : 'none';
+            });
+
+            // Deshabilitar inputs de secciones ocultas para que NO validen
+            Object.keys(boxes).forEach(k => {
+                boxes[k].querySelectorAll('input, select, textarea').forEach(el => {
+                    el.disabled = (k !== mode);
+                });
+            });
+
+            // Activar required/pattern solo en la sección activa (usando data-*)
+            const active = boxes[mode];
+            active.querySelectorAll('input').forEach(el => {
+                const req = el.getAttribute('data-required') === '1';
+                const pat = el.getAttribute('data-pattern');
+                if (req) el.setAttribute('required', 'required');
+                else el.removeAttribute('required');
+                if (pat) el.setAttribute('pattern', pat);
+                else el.removeAttribute('pattern');
+            });
+
+            err.style.display = 'none';
+            err.textContent = '';
+        }
+
+        // Validación adicional: caducidad no puede estar en el pasado
+        function isExpiryValid(mmYY) {
+            const m = mmYY.match(/^(0[1-9]|1[0-2])\/([0-9]{2})$/);
+            if (!m) return false;
+            const mm = parseInt(m[1], 10);
+            const yy = parseInt(m[2], 10);
+            const now = new Date();
+            const curYY = now.getFullYear() % 100;
+            const curMM = now.getMonth() + 1;
+            if (yy < curYY) return false;
+            if (yy === curYY && mm < curMM) return false;
+            return true;
+        }
+
+        function showError(msg) {
+            err.textContent = msg;
+            err.style.display = '';
+            err.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        sel.addEventListener('change', () => setBox(sel.value));
+
+        form.addEventListener('submit', (e) => {
+            err.style.display = 'none';
+            err.textContent = '';
+
+            // HTML5 pattern/required
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                showError('Revisa los campos del método de pago. Hay datos inválidos o incompletos.');
+                return;
+            }
+
+            // Extra checks
+            if (sel.value === 'tarjeta') {
+                const exp = document.getElementById('card_exp').value.trim();
+                if (!isExpiryValid(exp)) {
+                    e.preventDefault();
+                    showError('La caducidad de la tarjeta no es válida o está vencida.');
+                    return;
+                }
+
+                const name = document.getElementById('card_name').value.trim();
+                // refuerzo: nombre + apellido y solo letras/espacios (ya lo hace pattern, esto es extra)
+                if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+(?:[ ][A-Za-zÁÉÍÓÚÜÑáéíóúüñ]+)+$/.test(name)) {
+                    e.preventDefault();
+                    showError('El titular debe contener solo letras y espacios, e incluir nombre y apellido.');
+                    return;
+                }
+
+                // Tarjeta: permitir espacios pero comprobar longitud real 13-19
+                const num = document.getElementById('card_number').value.replace(/\s+/g, '');
+                if (num.length < 13 || num.length > 19) {
+                    e.preventDefault();
+                    showError('El número de tarjeta debe tener entre 13 y 19 dígitos.');
+                    return;
+                }
+            }
+
+            if (sel.value === 'transferencia') {
+                const ref = document.getElementById('transfer_ref').value.trim();
+                if (!/^[A-Za-z0-9-]{4,30}$/.test(ref)) {
+                    e.preventDefault();
+                    showError('La referencia de transferencia es obligatoria y debe tener 4–30 caracteres (letras/números/guión).');
+                    return;
+                }
+            }
+        });
+
+        // Inicial
+        setBox(sel.value);
+    })();
 </script>
 
 <?php require_once __DIR__ . '/footer.php'; ?>

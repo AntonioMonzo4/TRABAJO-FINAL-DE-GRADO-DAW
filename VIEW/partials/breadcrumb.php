@@ -3,6 +3,8 @@ if (!isset($items) || !is_array($items)) {
   return;
 }
 ?>
+<!-- VIEW/partials/breadcrumb.php -->
+ <!-- Breadcrumb de navegación -->
 <nav class="breadcrumb">
   <ol>
     <?php foreach ($items as $item): ?>

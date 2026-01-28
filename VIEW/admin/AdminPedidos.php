@@ -13,6 +13,7 @@ if ($flash) unset($_SESSION['flash']);
   <section class="container">
     <h1>Admin - Pedidos</h1>
 
+    <!-- Mensajes flash -->
     <?php if ($flash && !empty($flash['msg'])): ?>
       <div style="margin:10px 0;padding:12px;border-radius:10px; background: <?= ($flash['type'] ?? '') === 'error' ? '#ffe8e8' : '#e9f8ef' ?>;">
         <?= htmlspecialchars($flash['msg']) ?>

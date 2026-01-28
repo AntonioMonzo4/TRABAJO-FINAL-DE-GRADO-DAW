@@ -1,6 +1,7 @@
 // VIEW/js/carrito_pagina.js
-
+// Gestión del carrito en la página de carrito de compra
 class CarritoPagina {
+  // Inicialización del carrito en la página de compra 
   constructor() {
     this.carritoManager = window.carritoManager;
     this.carritoItemsEl = document.getElementById('carrito-items');
@@ -9,9 +10,11 @@ class CarritoPagina {
     // Si esto se ejecuta en otra página por error, salimos sin romper nada
     if (!this.carritoManager || !this.carritoItemsEl || !this.template) return;
 
+    // Iniciar lógica del carrito
     this.init();
   }
 
+  // Configuración inicial del carrito
   init() {
     this.bloquearDescuento();
     this.setupDelegation();
@@ -19,6 +22,7 @@ class CarritoPagina {
     this.renderCarrito();
   }
 
+  // Bloquea la sección de descuento si no hay códigos disponibles
   bloquearDescuento() {
     const input = document.getElementById('codigo-descuento');
     const btn = document.getElementById('aplicar-descuento');
@@ -36,6 +40,7 @@ class CarritoPagina {
     if (linea) linea.style.display = 'none';
   }
 
+  // Renderiza los items del carrito en la página 
   renderCarrito() {
     const items = this.carritoManager.obtenerItemsCarrito() || [];
 
@@ -56,7 +61,10 @@ class CarritoPagina {
     const carritoVacio = document.getElementById('carrito-vacio');
     if (carritoVacio) carritoVacio.style.display = 'none';
 
+    //este es el bucle que añade los items al carrito
     items.forEach((item) => {
+
+      // clonar template y rellenar datos
       const clone = this.template.content.cloneNode(true);
       const row = clone.querySelector('.carrito-item');
 

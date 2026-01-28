@@ -1,4 +1,6 @@
 <?php
+// Admin Panel - VIEW/admin/AdminPanel.php
+// Muestra el panel de administración con opciones para gestionar productos, pedidos y usuarios.
 require_once __DIR__ . '/../../CONTROLLER/AdminGuard.php';
 AdminGuard::check();
 
@@ -8,6 +10,7 @@ $items = [
   ['label' => 'Inicio', 'url' => '/home'],
   ['label' => 'Admin', 'url' => null]
 ];
+
 require_once __DIR__ . '/../partials/breadcrumb.php';
 ?>
 

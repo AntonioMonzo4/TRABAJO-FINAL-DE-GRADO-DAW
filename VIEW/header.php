@@ -28,10 +28,10 @@ $carritoCount = $_SESSION['carrito_count'] ?? 0;
     <meta name="keywords" content="libros, lectura, novela, ensayo, poesía, Atenea, librería, conocimiento">
     <meta name="robots" content="index,follow">
 
-    <!-- FAVICON -->
+    
     <link rel="shortcut icon" href="/VIEW/img/logo_principal.png" type="image/svg+xml">
 
-    <!-- CSS PRINCIPAL (ruta según tu estructura) -->
+    
     <link rel="stylesheet" href="/VIEW/css/style.css">
 
     <!-- ICONOS FONT AWESOME -->
@@ -69,7 +69,7 @@ $carritoCount = $_SESSION['carrito_count'] ?? 0;
                     <li><a href="/about">Sobre nosotros</a></li>
                     <li><a href="/books">Libros</a></li>
                     <li><a href="/tienda">Tienda</a></li>
-                    <!-- El JS insertará aquí: Admin / Login / Perfil / Carrito en móvil -->
+                    
                 </ul>
             </nav>
 
