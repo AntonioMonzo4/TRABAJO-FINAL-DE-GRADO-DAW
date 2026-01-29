@@ -9,59 +9,60 @@ $flash = $_SESSION['flash'] ?? null;
 if ($flash) unset($_SESSION['flash']);
 ?>
 
-<main class="page">
+<main class="page admin-page">
   <section class="container">
     <h1>Admin - Pedidos</h1>
 
-    <!-- Mensajes flash -->
     <?php if ($flash && !empty($flash['msg'])): ?>
-      <div style="margin:10px 0;padding:12px;border-radius:10px; background: <?= ($flash['type'] ?? '') === 'error' ? '#ffe8e8' : '#e9f8ef' ?>;">
+      <div class="admin-flash <?= ($flash['type'] ?? '') === 'error' ? 'is-error' : 'is-ok' ?>">
         <?= htmlspecialchars($flash['msg']) ?>
       </div>
     <?php endif; ?>
 
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin: 12px 0;">
+    <div class="admin-actions">
       <a class="btn btn-secondary" href="/admin">Volver al panel</a>
       <a class="btn btn-secondary" href="/admin/stock">Ver productos</a>
+      <a class="btn btn-secondary" href="/admin/usuarios">Usuarios</a>
     </div>
 
-    <div style="overflow:auto;">
-      <table style="width:100%; border-collapse:collapse;">
+    <div class="admin-table-wrap">
+      <table class="admin-table">
         <thead>
           <tr>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">ID</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Usuario</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Fecha</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Total</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Pago</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Detalle</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Estado</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Acción</th>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Pago</th>
+            <th>Detalle</th>
+            <th>Estado</th>
+            <th>Acción</th>
           </tr>
         </thead>
+
         <tbody>
         <?php foreach ($pedidos as $p): ?>
           <tr>
             <form method="post" action="/admin/pedidos/estado">
               <input type="hidden" name="order_id" value="<?= (int)$p['order_id'] ?>">
 
-              <td style="padding:8px;border-bottom:1px solid #eee;">#<?= (int)$p['order_id'] ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= (int)$p['user_id'] ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= htmlspecialchars($p['fecha_pedido'] ?? '-') ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= number_format((float)$p['precio_total'], 2) ?> €</td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= htmlspecialchars($p['metodo_pago'] ?? '-') ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= htmlspecialchars($p['pago_detalle'] ?? '-') ?></td>
+              <td data-label="ID">#<?= (int)$p['order_id'] ?></td>
+              <td data-label="Usuario"><?= (int)$p['user_id'] ?></td>
+              <td data-label="Fecha"><?= htmlspecialchars($p['fecha_pedido'] ?? '-') ?></td>
+              <td data-label="Total"><?= number_format((float)$p['precio_total'], 2) ?> €</td>
+              <td data-label="Pago"><?= htmlspecialchars($p['metodo_pago'] ?? '-') ?></td>
+              <td data-label="Detalle"><?= htmlspecialchars($p['pago_detalle'] ?? '-') ?></td>
 
-              <td style="padding:8px;border-bottom:1px solid #eee;">
+              <td data-label="Estado">
                 <?php $est = $p['estado'] ?? 'pendiente'; ?>
-                <select name="estado">
-                  <option value="pendiente" <?= $est==='pendiente' ? 'selected' : '' ?>>Pendiente</option>
-                  <option value="en_camino" <?= $est==='en_camino' ? 'selected' : '' ?>>En camino</option>
+                <select name="estado" class="admin-input">
+                  <option value="pendiente"  <?= $est==='pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                  <option value="en_camino"  <?= $est==='en_camino' ? 'selected' : '' ?>>En camino</option>
                   <option value="finalizado" <?= $est==='finalizado' ? 'selected' : '' ?>>Finalizado</option>
                 </select>
               </td>
 
-              <td style="padding:8px;border-bottom:1px solid #eee;">
+              <td data-label="Acción">
                 <button class="btn btn-primary" type="submit">Guardar</button>
               </td>
             </form>

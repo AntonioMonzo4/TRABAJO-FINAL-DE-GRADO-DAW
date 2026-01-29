@@ -5702,3 +5702,270 @@ ul {
   background: rgba(0,0,0,0.04);
   font-weight: 700;
 }
+
+/* ===== FILTRO GÉNEROS (BOTONES GRANDES) ===== */
+.genre-toolbar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin: 20px 0 28px;   /* más separación con el grid */
+}
+
+.genre-btn{
+  border: none;
+  background: var(--color-secundario);   /* mismo color que botones principales */
+  color: var(--color-blanco);
+  padding: 12px 22px;                    /* más grandes */
+  border-radius: 12px;                   /* más estilo botón */
+  cursor: pointer;
+  transition: var(--transicion-rapida);
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: var(--sombra-suave);
+}
+
+.genre-btn:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--sombra-media);
+  filter: brightness(1.05);
+}
+
+/* Botón activo */
+.genre-btn.is-active{
+  background: var(--color-primario);
+  box-shadow: var(--sombra-media);
+}
+
+/* =========================
+   ADMIN – Responsive (tablet/móvil)
+   Pega al FINAL de style.css
+   ========================= */
+
+/* Mejoras generales para tablas en admin (ya tienen overflow:auto en el HTML) */
+.page .container div[style*="overflow:auto"] table {
+  min-width: 820px; /* evita que se rompa; en móvil se scrollea horizontal */
+}
+
+.page .container div[style*="overflow:auto"] table th,
+.page .container div[style*="overflow:auto"] table td {
+  white-space: nowrap;
+}
+
+/* Inputs/select dentro de tablas: aspecto consistente */
+.page .container table input,
+.page .container table select {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.15);
+  background: #fff;
+}
+
+/* ===== TABLET (<= 1024px) ===== */
+@media (max-width: 1024px) {
+
+  /* títulos menos grandes */
+  .page .container h1 {
+    font-size: 1.8rem;
+  }
+
+  /* barras de botones que ya van en flex */
+  .page .container div[style*="display:flex"][style*="flex-wrap:wrap"] {
+    gap: 10px !important;
+  }
+
+  /* botones un poco más cómodos */
+  .page .container .btn {
+    padding: 10px 14px;
+  }
+}
+
+/* ===== MÓVIL (<= 768px) ===== */
+@media (max-width: 768px) {
+
+  /* contenedor algo más compacto */
+  .page .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .page .container h1 {
+    font-size: 1.55rem;
+  }
+
+  /* las barras de botones (Volver, Ver pedidos, etc.) pasan a columna */
+  .page .container div[style*="display:flex"][style*="flex-wrap:wrap"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  /* botones a ancho completo */
+  .page .container div[style*="display:flex"][style*="flex-wrap:wrap"] .btn,
+  .page .container div[style*="display:flex"][style*="flex-wrap:wrap"] a.btn,
+  .page .container div[style*="display:flex"][style*="flex-wrap:wrap"] button.btn {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* en tablas: inputs/select a 100% (aunque tengan width inline) */
+  .page .container table input,
+  .page .container table select {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Usuarios.php: el form dentro de TD (display:flex inline) lo apilamos */
+  .page .container table td form[style*="display:flex"] {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  /* Tablas: un pelín menos de padding para que no “explote” */
+  .page .container div[style*="overflow:auto"] table th,
+  .page .container div[style*="overflow:auto"] table td {
+    padding: 10px 8px;
+  }
+}
+
+/* ===== MÓVIL PEQUEÑO (<= 480px) ===== */
+@media (max-width: 480px) {
+
+  /* tabla todavía más scroll-friendly */
+  .page .container div[style*="overflow:auto"] table {
+    min-width: 900px;
+  }
+
+  /* botones ligeramente más compactos */
+  .page .container .btn {
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+}
+/* =========================
+   ADMIN UI + RESPONSIVE
+   ========================= */
+.admin-page h1 { margin-bottom: 10px; }
+
+.admin-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin: 12px 0 16px;
+}
+
+.admin-flash{
+  margin:10px 0;
+  padding:12px;
+  border-radius:12px;
+  border: 1px solid rgba(0,0,0,.08);
+}
+.admin-flash.is-error{ background:#ffe8e8; }
+.admin-flash.is-ok{ background:#e9f8ef; }
+
+.admin-table-wrap{
+  overflow:auto;
+  border-radius: 14px;
+  border: 1px solid rgba(0,0,0,.08);
+  background: var(--color-blanco);
+}
+
+.admin-table{
+  width:100%;
+  border-collapse: collapse;
+  min-width: 920px; /* desktop/tablet: mantiene estructura y en móvil hará scroll si procede */
+}
+
+.admin-table th{
+  text-align:left;
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(0,0,0,.10);
+  background: rgba(0,0,0,.02);
+}
+
+.admin-table td{
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+  vertical-align: middle;
+}
+
+.admin-input{
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,.15);
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+}
+.admin-input--sm{ max-width: 140px; }
+.admin-input--xs{ max-width: 110px; }
+
+.admin-inline-form{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+/* ===== TABLET ===== */
+@media (max-width: 1024px){
+  .admin-table{ min-width: 860px; }
+}
+
+/* ===== MÓVIL: tabla -> tarjetas ===== */
+@media (max-width: 768px){
+  .admin-actions .btn{ width:100%; text-align:center; justify-content:center; }
+
+  .admin-table-wrap{
+    overflow: visible; /* ya no necesitamos scroll al convertir en tarjetas */
+    border: none;
+    background: transparent;
+  }
+
+  .admin-table{
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 12px; /* separación entre tarjetas */
+  }
+
+  .admin-table thead{ display:none; }
+
+  .admin-table tr{
+    display:block;
+    background: var(--color-blanco);
+    border: 1px solid rgba(0,0,0,.08);
+    border-radius: 14px;
+    box-shadow: var(--sombra-suave);
+    overflow: hidden;
+  }
+
+  .admin-table td{
+    display:flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,.06);
+    white-space: normal;
+  }
+
+  .admin-table td:last-child{ border-bottom: 0; }
+
+  .admin-table td::before{
+    content: attr(data-label);
+    font-weight: 700;
+    color: rgba(0,0,0,.65);
+    flex: 0 0 44%;
+  }
+
+  .admin-inline-form{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-input, .admin-input--sm, .admin-input--xs{
+    max-width: 100%;
+  }
+}
+
+

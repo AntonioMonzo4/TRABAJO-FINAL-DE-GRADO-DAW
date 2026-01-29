@@ -9,32 +9,33 @@ $flash = $_SESSION['flash'] ?? null;
 if ($flash) unset($_SESSION['flash']);
 ?>
 
-<main class="page">
+<main class="page admin-page">
   <section class="container">
     <h1>Admin - Productos</h1>
 
     <?php if ($flash && !empty($flash['msg'])): ?>
-      <div style="margin:10px 0;padding:12px;border-radius:10px; background: <?= ($flash['type'] ?? '') === 'error' ? '#ffe8e8' : '#e9f8ef' ?>;">
+      <div class="admin-flash <?= ($flash['type'] ?? '') === 'error' ? 'is-error' : 'is-ok' ?>">
         <?= htmlspecialchars($flash['msg']) ?>
       </div>
     <?php endif; ?>
 
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin: 12px 0;">
+    <div class="admin-actions">
       <a class="btn btn-secondary" href="/admin">Volver al panel</a>
       <a class="btn btn-secondary" href="/admin/pedidos">Ver pedidos</a>
+      <a class="btn btn-secondary" href="/admin/usuarios">Usuarios</a>
     </div>
 
     <h2>Libros</h2>
-    <div style="overflow:auto;">
-      <table style="width:100%; border-collapse:collapse;">
+    <div class="admin-table-wrap">
+      <table class="admin-table">
         <thead>
           <tr>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">ID</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Título</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Autor</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Precio</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Stock</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Acción</th>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Autor</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -44,16 +45,19 @@ if ($flash) unset($_SESSION['flash']);
               <input type="hidden" name="tipo" value="book">
               <input type="hidden" name="id" value="<?= (int)$l['book_id'] ?>">
 
-              <td style="padding:8px;border-bottom:1px solid #eee;">#<?= (int)$l['book_id'] ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= htmlspecialchars($l['titulo'] ?? '') ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= htmlspecialchars($l['autor'] ?? '') ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;">
-                <input name="precio" type="number" step="0.01" min="0" value="<?= (float)$l['precio'] ?>" style="width:110px;">
+              <td data-label="ID">#<?= (int)$l['book_id'] ?></td>
+              <td data-label="Título"><?= htmlspecialchars($l['titulo'] ?? '') ?></td>
+              <td data-label="Autor"><?= htmlspecialchars($l['autor'] ?? '') ?></td>
+
+              <td data-label="Precio">
+                <input name="precio" type="number" step="0.01" min="1" value="<?= (float)$l['precio'] ?>" class="admin-input admin-input--sm">
               </td>
-              <td style="padding:8px;border-bottom:1px solid #eee;">
-                <input name="stock" type="number" min="0" value="<?= (int)$l['stock'] ?>" style="width:90px;">
+
+              <td data-label="Stock">
+                <input name="stock" type="number" min="0" value="<?= (int)$l['stock'] ?>" class="admin-input admin-input--xs">
               </td>
-              <td style="padding:8px;border-bottom:1px solid #eee;">
+
+              <td data-label="Acción">
                 <button class="btn btn-primary" type="submit">Guardar</button>
               </td>
             </form>
@@ -64,15 +68,15 @@ if ($flash) unset($_SESSION['flash']);
     </div>
 
     <h2 style="margin-top:26px;">Otros productos</h2>
-    <div style="overflow:auto;">
-      <table style="width:100%; border-collapse:collapse;">
+    <div class="admin-table-wrap">
+      <table class="admin-table">
         <thead>
           <tr>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">ID</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Nombre</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Precio</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Stock</th>
-            <th style="text-align:left;padding:8px;border-bottom:1px solid #ddd;">Acción</th>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
@@ -82,15 +86,18 @@ if ($flash) unset($_SESSION['flash']);
               <input type="hidden" name="tipo" value="other">
               <input type="hidden" name="id" value="<?= (int)$o['product_id'] ?>">
 
-              <td style="padding:8px;border-bottom:1px solid #eee;">#<?= (int)$o['product_id'] ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;"><?= htmlspecialchars($o['nombre'] ?? '') ?></td>
-              <td style="padding:8px;border-bottom:1px solid #eee;">
-                <input name="precio" type="number" step="0.01" min="0" value="<?= (float)$o['precio'] ?>" style="width:110px;">
+              <td data-label="ID">#<?= (int)$o['product_id'] ?></td>
+              <td data-label="Nombre"><?= htmlspecialchars($o['nombre'] ?? '') ?></td>
+
+              <td data-label="Precio">
+                <input name="precio" type="number" step="0.01" min="1" value="<?= (float)$o['precio'] ?>" class="admin-input admin-input--sm">
               </td>
-              <td style="padding:8px;border-bottom:1px solid #eee;">
-                <input name="stock" type="number" min="0" value="<?= (int)$o['stock'] ?>" style="width:90px;">
+
+              <td data-label="Stock">
+                <input name="stock" type="number" min="0" value="<?= (int)$o['stock'] ?>" class="admin-input admin-input--xs">
               </td>
-              <td style="padding:8px;border-bottom:1px solid #eee;">
+
+              <td data-label="Acción">
                 <button class="btn btn-primary" type="submit">Guardar</button>
               </td>
             </form>
