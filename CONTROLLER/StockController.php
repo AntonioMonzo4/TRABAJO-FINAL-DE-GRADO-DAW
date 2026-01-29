@@ -36,42 +36,53 @@ class StockController
 
     // Guardar cambios en stock y precios
     public static function stockGuardar()
-    {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        $pdo = conexion::conexionBBDD();
+{
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    $pdo = conexion::conexionBBDD();
 
-        $tipo  = (string)($_POST['tipo'] ?? '');
-        $id    = (int)($_POST['id'] ?? 0);
-        $precio = (float)($_POST['precio'] ?? 0);
-        $stock  = (int)($_POST['stock'] ?? 0);
+    $tipo   = (string)($_POST['tipo'] ?? '');
+    $id     = (int)($_POST['id'] ?? 0);
+    $precio = (float)($_POST['precio'] ?? 0);
+    $stock  = (int)($_POST['stock'] ?? 0);
 
-        // Validar tipo y ID válidos y ajustar valores negativos
-        if ($id <= 0) {
-            $_SESSION['flash'] = ['type' => 'error', 'msg' => 'ID inválido'];
-            header("Location: /admin/stock");
-            exit;
-        }
-
-        if ($precio < 0) $precio = 0;
-        if ($stock < 0) $stock = 0;
-
-        // Preparar y ejecutar actualización según tipo de producto
-        if ($tipo === 'book') {
-            // Actualizar libro
-            // :p es para precio, :s para stock, :id para book_id
-
-            $stmt = $pdo->prepare("UPDATE books SET precio = :p, stock = :s WHERE book_id = :id");
-        } else {
-            $stmt = $pdo->prepare("UPDATE other_products SET precio = :p, stock = :s WHERE product_id = :id");
-        }
-
-        $stmt->execute([':p' => $precio, ':s' => $stock, ':id' => $id]);
-
-        // Mensaje de éxito y redirección
-        $_SESSION['flash'] = ['type' => 'ok', 'msg' => 'Producto actualizado'];
+    if ($id <= 0) {
+        $_SESSION['flash'] = ['type' => 'error', 'msg' => 'ID inválido'];
         header("Location: /admin/stock");
         exit;
     }
+
+    // Tipo permitido
+    if ($tipo !== 'book' && $tipo !== 'other') {
+        $_SESSION['flash'] = ['type' => 'error', 'msg' => 'Tipo inválido'];
+        header("Location: /admin/stock");
+        exit;
+    }
+
+    // Stock nunca negativo
+    if ($stock < 0) $stock = 0;
+
+    // Precio mínimo 1€
+    if ($precio < 1) {
+        $precio = 1;
+        $_SESSION['flash'] = ['type' => 'error', 'msg' => 'El precio mínimo permitido es 1,00 €'];
+    }
+
+    if ($tipo === 'book') {
+        $stmt = $pdo->prepare("UPDATE books SET precio = :p, stock = :s WHERE book_id = :id");
+    } else {
+        $stmt = $pdo->prepare("UPDATE other_products SET precio = :p, stock = :s WHERE product_id = :id");
+    }
+
+    $stmt->execute([':p' => $precio, ':s' => $stock, ':id' => $id]);
+
+    // Si no había flash previo por precio mínimo, ponemos ok
+    if (!isset($_SESSION['flash'])) {
+        $_SESSION['flash'] = ['type' => 'ok', 'msg' => 'Producto actualizado'];
+    }
+
+    header("Location: /admin/stock");
+    exit;
+}
 
     // Mostrar y gestionar pedidos realizados
     // Listado de pedidos
