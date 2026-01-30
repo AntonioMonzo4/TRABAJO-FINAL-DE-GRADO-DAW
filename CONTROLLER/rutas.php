@@ -1,9 +1,7 @@
 <?php
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-/* ---------------------------
-   Obtener ruta: /tienda o /index.php?pagina=tienda
----------------------------- */
+
 $ruta = $_GET['pagina'] ?? '';
 if ($ruta === '') {
     $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
@@ -15,11 +13,7 @@ if ($ruta === '') {
 $ruta = trim($ruta);
 $ruta = ltrim($ruta, '/');
 
-/* ---------------------------
-   Cargar vista robusto:
-   - VIEW o view
-   - Tienda.php o tienda.php
----------------------------- */
+
 function cargarVista(string $vista): void
 {
     $docRoot = rtrim((string)($_SERVER['DOCUMENT_ROOT'] ?? ''), '/');
