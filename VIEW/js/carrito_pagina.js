@@ -1,20 +1,15 @@
 // VIEW/js/carrito_pagina.js
-// Gestión del carrito en la página de carrito de compra
 class CarritoPagina {
-  // Inicialización del carrito en la página de compra 
   constructor() {
     this.carritoManager = window.carritoManager;
     this.carritoItemsEl = document.getElementById('carrito-items');
     this.template = document.getElementById('template-carrito-item');
 
-    // Si esto se ejecuta en otra página por error, salimos sin romper nada
     if (!this.carritoManager || !this.carritoItemsEl || !this.template) return;
 
-    // Iniciar lógica del carrito
     this.init();
   }
 
-  // Configuración inicial del carrito
   init() {
     this.bloquearDescuento();
     this.setupDelegation();
@@ -22,7 +17,6 @@ class CarritoPagina {
     this.renderCarrito();
   }
 
-  // Bloquea la sección de descuento si no hay códigos disponibles
   bloquearDescuento() {
     const input = document.getElementById('codigo-descuento');
     const btn = document.getElementById('aplicar-descuento');
@@ -40,19 +34,21 @@ class CarritoPagina {
     if (linea) linea.style.display = 'none';
   }
 
-  // Renderiza los items del carrito en la página 
+  normalizarStock(stock) {
+    if (stock === undefined || stock === null || stock === '') return null;
+    const n = Number(stock);
+    if (!Number.isFinite(n) || n < 0) return null;
+    return Math.floor(n);
+  }
+
   renderCarrito() {
     const items = this.carritoManager.obtenerItemsCarrito() || [];
 
     const carritoCount = document.getElementById('carrito-count');
-    if (carritoCount) {
-      carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
-    }
+    if (carritoCount) carritoCount.textContent = `${items.length} producto${items.length !== 1 ? 's' : ''}`;
 
-    // limpia contenedor
     this.carritoItemsEl.innerHTML = '';
 
-    // vacío -> reset total inmediato
     if (items.length === 0) {
       this.resetResumenVacio();
       return;
@@ -61,10 +57,21 @@ class CarritoPagina {
     const carritoVacio = document.getElementById('carrito-vacio');
     if (carritoVacio) carritoVacio.style.display = 'none';
 
-    //este es el bucle que añade los items al carrito
-    items.forEach((item) => {
+    // Si algún item tiene stock=0, lo quitamos (por coherencia)
+    let huboLimpieza = false;
+    items.slice().forEach((it) => {
+      const st = this.normalizarStock(it.stock);
+      if (st !== null && st <= 0) {
+        this.carritoManager.eliminarDelCarrito(it.id, it.tipo);
+        huboLimpieza = true;
+      }
+    });
+    if (huboLimpieza) {
+      this.renderCarrito();
+      return;
+    }
 
-      // clonar template y rellenar datos
+    items.forEach((item) => {
       const clone = this.template.content.cloneNode(true);
       const row = clone.querySelector('.carrito-item');
 
@@ -93,16 +100,42 @@ class CarritoPagina {
       }
 
       const precio = Number(item.precio) || 0;
-      const cantidad = Number(item.cantidad) || 1;
+      const stock = this.normalizarStock(item.stock);
+      let cantidad = Number(item.cantidad) || 1;
+
+      // Clamp por stock (si existe)
+      if (stock !== null) cantidad = Math.min(cantidad, stock);
 
       row.querySelector('.item-precio-unitario').textContent = `${precio.toFixed(2)} € c/u`;
 
       const input = row.querySelector('.input-cantidad');
       input.value = String(cantidad);
 
+      // Importante: max real según stock
+      if (stock !== null) {
+        input.max = String(stock);
+        input.title = `Máximo disponible: ${stock}`;
+      } else {
+        input.max = '99';
+        input.title = '';
+      }
+
+      // Deshabilitar + si ya está al máximo
+      const btnSumar = row.querySelector('.btn-sumar');
+      if (btnSumar && stock !== null) {
+        btnSumar.disabled = cantidad >= stock;
+        btnSumar.style.opacity = btnSumar.disabled ? '0.5' : '';
+        btnSumar.style.cursor = btnSumar.disabled ? 'not-allowed' : '';
+      }
+
       row.querySelector('.total-precio').textContent = `${(precio * cantidad).toFixed(2)} €`;
 
       this.carritoItemsEl.appendChild(clone);
+
+      // Persistimos clamp si ha cambiado
+      if (cantidad !== (Number(item.cantidad) || 1)) {
+        this.carritoManager.actualizarCantidad(item.id, item.tipo, cantidad);
+      }
     });
 
     this.actualizarResumenTotal();
@@ -120,8 +153,17 @@ class CarritoPagina {
       // SUMAR
       if (e.target.closest('.btn-sumar')) {
         e.preventDefault();
+
         const input = itemEl.querySelector('.input-cantidad');
         const actual = parseInt(input.value, 10) || 1;
+
+        // Respeta max del input (stock)
+        const max = parseInt(input.max, 10);
+        if (Number.isFinite(max) && actual >= max) {
+          this.mostrarNotificacion(`No puedes añadir más. Stock máximo: ${max}`);
+          return;
+        }
+
         this.carritoManager.actualizarCantidad(id, tipo, actual + 1);
         this.renderCarrito();
         return;
@@ -170,6 +212,10 @@ class CarritoPagina {
         return;
       }
 
+      // Respeta max (stock si lo hay)
+      const max = parseInt(input.max, 10);
+      if (Number.isFinite(max)) nueva = Math.min(nueva, max);
+
       nueva = Math.min(99, Math.max(1, nueva));
       this.carritoManager.actualizarCantidad(id, tipo, nueva);
       this.renderCarrito();
@@ -193,7 +239,6 @@ class CarritoPagina {
   }
 
   resetResumenVacio() {
-    // Forzar DOM a 0 SIEMPRE
     const elSubtotal = document.getElementById('subtotal');
     const elEnvio = document.getElementById('envio-costo');
     const elTotal = document.getElementById('total');
@@ -250,13 +295,9 @@ class CarritoPagina {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Si carrito.js todavía no ha creado el manager, reintenta un poco
   const boot = () => {
-    if (window.carritoManager) {
-      new CarritoPagina();
-    } else {
-      setTimeout(boot, 50);
-    }
+    if (window.carritoManager) new CarritoPagina();
+    else setTimeout(boot, 50);
   };
   boot();
 });

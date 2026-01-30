@@ -25,6 +25,14 @@ class CarritoManager {
         contador.style.display = totalItems > 0 ? 'flex' : 'none';
     }
 
+    // Normaliza stock: null = desconocido (no limitamos), número >=0 = limitamos
+    normalizarStock(stock) {
+        if (stock === undefined || stock === null || stock === '') return null;
+        const n = Number(stock);
+        if (!Number.isFinite(n) || n < 0) return null;
+        return Math.floor(n);
+    }
+
     agregarAlCarrito(producto, cantidad = 1) {
         const id = String(producto.id ?? '');
         const tipo = String(producto.tipo ?? '');
@@ -33,13 +41,35 @@ class CarritoManager {
         const precio = Number(producto.precio);
         const precioSeguro = Number.isFinite(precio) && precio >= 0 ? precio : 0;
 
-        const qty = Math.max(1, parseInt(String(cantidad ?? 1), 10) || 1);
+        const qtySolicitada = Math.max(1, parseInt(String(cantidad ?? 1), 10) || 1);
+        const stock = this.normalizarStock(producto.stock);
+
+        // Si stock conocido y es 0 -> no se puede añadir
+        if (stock !== null && stock <= 0) {
+            this.mostrarNotificacion('Sin stock disponible');
+            return;
+        }
 
         const existente = this.carrito.find(i => String(i.id) === id && String(i.tipo) === tipo);
 
         if (existente) {
-            existente.cantidad = (Number(existente.cantidad) || 0) + qty;
+            const actual = Number(existente.cantidad) || 0;
+            let nueva = actual + qtySolicitada;
+
+            // si sabemos stock, no pasamos del stock
+            const stockItem = this.normalizarStock(existente.stock);
+            if (stockItem !== null) nueva = Math.min(nueva, stockItem);
+
+            existente.cantidad = nueva;
+
+            // Si el producto traía stock y el item no lo tenía, lo actualizamos
+            if (existente.stock === undefined || existente.stock === null) {
+                existente.stock = stock;
+            }
         } else {
+            let cantidadFinal = qtySolicitada;
+            if (stock !== null) cantidadFinal = Math.min(cantidadFinal, stock);
+
             this.carrito.push({
                 id,
                 tipo,
@@ -47,7 +77,8 @@ class CarritoManager {
                 autor: producto.autor,
                 precio: precioSeguro,
                 imagen: producto.imagen ?? '',
-                cantidad: qty
+                cantidad: cantidadFinal,
+                stock: stock // <= clave para limitar luego
             });
         }
 
@@ -77,7 +108,16 @@ class CarritoManager {
             return;
         }
 
-        item.cantidad = Math.min(99, Math.max(1, Math.floor(nc)));
+        let cant = Math.floor(nc);
+        cant = Math.min(99, Math.max(1, cant));
+
+        const stock = this.normalizarStock(item.stock);
+        if (stock !== null) {
+            cant = Math.min(cant, stock);
+        }
+
+        item.cantidad = cant;
+
         this.guardarCarritoLocalStorage();
         this.actualizarContadorCarrito();
     }
@@ -94,18 +134,18 @@ class CarritoManager {
         const notificacion = document.createElement('div');
         notificacion.className = 'notificacion-carrito';
         notificacion.innerHTML = `
-            <div class="notificacion-contenido">
-                <span>${mensaje}</span>
-                <button class="notificacion-cerrar">&times;</button>
-            </div>
-        `;
+      <div class="notificacion-contenido">
+        <span>${mensaje}</span>
+        <button class="notificacion-cerrar">&times;</button>
+      </div>
+    `;
 
         notificacion.style.cssText = `
-            position: fixed; top: 20px; right: 20px;
-            background: var(--color-secundario); color: var(--color-blanco);
-            padding: 15px 20px; border-radius: var(--radio-borde);
-            box-shadow: var(--sombra-media); z-index: 10000;
-        `;
+      position: fixed; top: 20px; right: 20px;
+      background: var(--color-secundario); color: var(--color-blanco);
+      padding: 15px 20px; border-radius: var(--radio-borde);
+      box-shadow: var(--sombra-media); z-index: 10000;
+    `;
 
         document.body.appendChild(notificacion);
 
@@ -114,10 +154,15 @@ class CarritoManager {
     }
 
     inicializarEventListeners() {
-        // Delegación robusta para botones de añadir desde listados/detalle
         document.addEventListener('click', (e) => {
-            const btnBook = e.target.closest('.add-to-cart');
-            const btnOther = e.target.closest('.add-other-to-cart');
+            // Acepta varios nombres de botón (porque en tu tienda hay "btn-rapido-carrito")
+            const btnBook =
+                e.target.closest('.add-to-cart') ||
+                e.target.closest('.btn-rapido-carrito');
+
+            const btnOther =
+                e.target.closest('.add-other-to-cart');
+
             const button = btnBook || btnOther;
             if (!button) return;
 
@@ -133,7 +178,8 @@ class CarritoManager {
                     nombre: button.getAttribute('data-book-titulo') ?? '',
                     autor: button.getAttribute('data-book-autor') || undefined,
                     precio: parseFloat(button.getAttribute('data-book-precio')),
-                    imagen: button.getAttribute('data-book-imagen') ?? ''
+                    imagen: button.getAttribute('data-book-imagen') ?? '',
+                    stock: button.getAttribute('data-book-stock') // NUEVO
                 }, cantidad);
                 return;
             }
@@ -143,7 +189,8 @@ class CarritoManager {
                 tipo: 'other',
                 nombre: button.getAttribute('data-product-nombre') ?? '',
                 precio: parseFloat(button.getAttribute('data-product-precio')),
-                imagen: button.getAttribute('data-product-imagen') ?? ''
+                imagen: button.getAttribute('data-product-imagen') ?? '',
+                stock: button.getAttribute('data-product-stock') // NUEVO
             }, cantidad);
         });
     }
@@ -153,7 +200,6 @@ class CarritoManager {
         this.guardarCarritoLocalStorage();
         this.actualizarContadorCarrito();
     }
-
 }
 
 document.addEventListener('DOMContentLoaded', () => {
